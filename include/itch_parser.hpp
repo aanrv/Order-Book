@@ -2,6 +2,7 @@
 #define ORDER_BOOK_ITCH_PARSER_HPP
 
 #include <cstdint>
+#include <cstddef>
 
 namespace ITCH {
 
@@ -289,6 +290,26 @@ template <> constexpr uint16_t MessageLength<BrokenTradeMessage>                
 template <> constexpr uint16_t MessageLength<NOIIMessage>                       = 50;
 template <> constexpr uint16_t MessageLength<RetailInterestMessage>             = 20;
 template <> constexpr uint16_t MessageLength<DirectListingWithCapitalRaisePriceDiscoveryMessage> = 48;
+
+// Parses Nasdaq BinaryFILE for ITCH Data
+// file descriptor not associated with Parser object because can be more than one file per session as per Nasdaq spec
+class Parser {
+public:
+    Parser()                            : buffer(new uint8_t[defaultBufferSize]), bufferSize(defaultBufferSize) {}
+    Parser(size_t _bufferSize)          : buffer(new uint8_t[_bufferSize]), bufferSize(_bufferSize) {}
+
+    Parser(const Parser& p)             = delete;
+    Parser& operator=(const Parser& p)  = delete;
+
+    ~Parser()                           { delete[] buffer; }
+
+    void process(int fd);
+
+private:
+    static constexpr size_t defaultBufferSize = 2048;
+    uint8_t* buffer;
+    size_t bufferSize;
+};
 
 } // namespace ITCH
 
