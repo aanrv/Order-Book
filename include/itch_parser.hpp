@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <string>
 #include <fstream>
 
 namespace ITCH {
@@ -297,8 +296,8 @@ template <> constexpr uint16_t MessageLength<DirectListingWithCapitalRaisePriceD
 class Parser {
 public:
     Parser()                                                    = delete;   // must provide filename
-    Parser(const std::string& _filename);
-    Parser(const std::string& _filename, size_t _bufferSize);
+    Parser(char const * _filename);
+    Parser(char const * _filename, size_t _bufferSize);
 
     Parser(const Parser& p)                                     = delete;
     Parser& operator=(const Parser& p)                          = delete;
@@ -310,9 +309,9 @@ public:
 private:
     static constexpr size_t defaultBufferSize = 2048;
 
-    std::ifstream itchFile;
-    size_t bufferSize;
-    char* buffer;
+    int     fdItch;
+    size_t  bufferSize;
+    char*   buffer;
 };
 
 } // namespace ITCH
