@@ -297,13 +297,13 @@ template <> constexpr uint16_t MessageLength<DirectListingWithCapitalRaisePriceD
 class Parser {
 public:
     Parser()                                                    = delete;   // must provide filename
-    Parser(const std::string& _filename)                        : itchFile(_filename), bufferSize(defaultBufferSize), buffer(new uint8_t[bufferSize]) {}
-    Parser(const std::string& _filename, size_t _bufferSize)    : itchFile(_filename), bufferSize(_bufferSize), buffer(new uint8_t[bufferSize]) {}
+    Parser(const std::string& _filename);
+    Parser(const std::string& _filename, size_t _bufferSize);
 
     Parser(const Parser& p)                                     = delete;
     Parser& operator=(const Parser& p)                          = delete;
 
-    ~Parser()                                                   { itchFile.close(); delete buffer; }
+    ~Parser();
 
     void process();
 
@@ -312,7 +312,7 @@ private:
 
     std::ifstream itchFile;
     size_t bufferSize;
-    uint8_t* buffer;
+    char* buffer;
 };
 
 } // namespace ITCH
