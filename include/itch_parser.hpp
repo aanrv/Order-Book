@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <string>
+#include <fstream>
 
 namespace ITCH {
 
@@ -292,23 +294,25 @@ template <> constexpr uint16_t MessageLength<RetailInterestMessage>             
 template <> constexpr uint16_t MessageLength<DirectListingWithCapitalRaisePriceDiscoveryMessage> = 48;
 
 // Parses Nasdaq BinaryFILE for ITCH Data
-// file descriptor not associated with Parser object because can be more than one file per session as per Nasdaq spec
 class Parser {
 public:
-    Parser()                            : buffer(new uint8_t[defaultBufferSize]), bufferSize(defaultBufferSize) {}
-    Parser(size_t _bufferSize)          : buffer(new uint8_t[_bufferSize]), bufferSize(_bufferSize) {}
+    Parser()                                                    = delete;   // must provide filename
+    Parser(const std::string& _filename)                        : itchFile(_filename), bufferSize(defaultBufferSize), buffer(new uint8_t[bufferSize]) {}
+    Parser(const std::string& _filename, size_t _bufferSize)    : itchFile(_filename), bufferSize(_bufferSize), buffer(new uint8_t[bufferSize]) {}
 
-    Parser(const Parser& p)             = delete;
-    Parser& operator=(const Parser& p)  = delete;
+    Parser(const Parser& p)                                     = delete;
+    Parser& operator=(const Parser& p)                          = delete;
 
-    ~Parser()                           { delete[] buffer; }
+    ~Parser()                                                   { itchFile.close(); delete buffer; }
 
-    void process(int fd);
+    void process();
 
 private:
     static constexpr size_t defaultBufferSize = 2048;
-    uint8_t* buffer;
+
+    std::ifstream itchFile;
     size_t bufferSize;
+    uint8_t* buffer;
 };
 
 } // namespace ITCH
