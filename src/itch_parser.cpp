@@ -1,18 +1,10 @@
 #include "include/itch_parser.hpp"
 #include <cstring>                  // memcpy
-#include <unistd.h>
-#include <fcntl.h>
-#include <endian.h>
+#include <fcntl.h>                  // open
+#include <unistd.h>                 // read
+#include <endian.h>                 // be16toh
 
-#include <iostream>
-using namespace std;
-
-void printchar(const char* s, size_t n) {
-    for (size_t i = 0; i < n; ++i) {
-        cout << s[i];
-    }
-    cout << endl;
-}
+#include <iostream>                 // todo remove
 
 ITCH::Parser::Parser(char const * _filename) : Parser(_filename, defaultBufferSize) {
 }
@@ -31,50 +23,44 @@ void ITCH::Parser::process() {
     int offset = 0;
     bool endOfSession = false;
     unsigned long long totalbytes = 0;
+    constexpr size_t numBytesMessageLength = 2;
     // read file in chunks of bufferSize bytes (offset handles incomplete message from previous buffer)
     while (!endOfSession && (bytesRead = read(fdItch, buffer + offset, bufferSize - offset)) > 0) {
         offset = 0;
         char* _buffer = buffer;
         // read buffer message by message
-        while ((size_t)(_buffer - buffer) < bufferSize) {               // todo can size_t _buffer - buffer overflow/cause issues?
-            if ((_buffer + 1) >= (buffer + bufferSize)) {               // handle case: message size (2 bytes) data is partial i.e. only 1 byte left in buffer
+        while (_buffer < (buffer + bufferSize)) {                       // while _buffer pointer has not gone out of bounds for buffer
+            if ((_buffer + numBytesMessageLength) > (buffer + bufferSize)) {
+                // handle case message size is partial
+                // message sizes are 2 bytes but only 1 byte left in buffer
                 offset = 1;
-                cout << "offset 1 message size" << endl;
                 buffer[0] = *_buffer;
                 break;
             }
             uint16_t msglen = be16toh(*(uint16_t *)_buffer);
-            if (msglen == 0) {                                          // check end of session
-                cout << "0 msg len: " << endl;
+            if (msglen == 0) {
+                // check end of session
                 endOfSession = true;
                 break;
             }
-//            cout << "length " << msglen << endl;
-            if ((_buffer + 2 + msglen) >= (buffer + bufferSize + 1)) {      // handle case: this message extends past remaining buffer
-//                cout << "message larger than remaining buffer" << endl;
-                offset = ((buffer + bufferSize) - _buffer);             // length of partial message in buffer
-                cout << "offset " << offset << endl;
-                std::memcpy(buffer, _buffer, offset);                        // copy length of partial message (offset) from end of _buffer to start of buffer
+            if ((_buffer + numBytesMessageLength + msglen) > (buffer + bufferSize)) {
+                // handle case current message is partial
+                // message extends past last byte in buffer
+                offset = ((buffer + bufferSize) - _buffer);             // length of partial message currently in buffer
+                std::memcpy(buffer, _buffer, offset);                   // copy length of partial message (offset) from end of _buffer to start of buffer
                                                                         // exit loop, next read destination will start from buffer + offset, and read offset fewer bytes
                 break;
             }
-            _buffer += 2;
-            char type = *_buffer;
-            cout << "type " << type << " len " << msglen << endl;
-            //printchar(_buffer, msglen);
+            _buffer += numBytesMessageLength;
+            //char type = *_buffer;
             _buffer += (msglen);
-            totalbytes += (msglen + 2);
-//            cout << "buffer size: " << bufferSize << ", buffer needed: " << _buffer - buffer << endl;
-        }
-        cout << "total bytes read " << totalbytes << endl;
-        if (bytesRead == -1) {
-            cerr << "Failed to read bytes from file" << endl;
-            cerr << "Stopping ITCH::Parser::process()" << endl;
+            totalbytes += (numBytesMessageLength + msglen);
         }
     }
+    std::cout << "total bytes read " << totalbytes << std::endl;
     if (bytesRead == -1) {
-        cerr << "Failed to read bytes from start of file" << endl;
-        cerr << "Stopping ITCH::Parser::process()" << endl;
+        std::cerr << "Failed to read bytes from start of file" << std::endl;
+        std::cerr << "Stopping ITCH::Parser::process()" << std::endl;
     }
 }
 

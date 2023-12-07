@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <fstream>
 
 namespace ITCH {
 
