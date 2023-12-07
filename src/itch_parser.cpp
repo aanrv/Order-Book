@@ -8,7 +8,12 @@
 
 #include <iostream>                 // todo remove
 
-#define BENCH true
+#define BENCH   true
+#define ASSERT  true
+
+#if ASSERT
+#include <cassert>
+#endif
 
 ITCH::Parser::Parser(char const * _filename) : Parser(_filename, defaultBufferSize) {
 }
@@ -39,9 +44,13 @@ void ITCH::Parser::process() {
     constexpr size_t messageHeaderLength = 2;
     // read file in chunks of bufferSize bytes (offset handles incomplete message from previous buffer)
     while (!endOfSession && ((bytesRead = read(fdItch, buffer + offset, bufferSize - offset)) > 0 || offset)) {
-        size_t numValidBytes = bytesRead + offset;                              // number of bytes to process
-                                                                                // handles case where bytesRead < attempted and possibly offset > 0 i.e. memcpy from previous loop
+        // number of bytes to process
+        // handles case where bytesRead < attempted and possibly offset > 0 i.e. memcpy from previous loop
+        size_t numValidBytes = bytesRead + offset;
         offset = 0;
+#if ASSERT
+        assert(numValidBytes <= bufferSize);
+#endif
 
         char* _buffer = buffer;
         // read buffer message by message
@@ -70,6 +79,9 @@ void ITCH::Parser::process() {
             _buffer += messageHeaderLength;
             //char type = *_buffer;
             _buffer += (messageLength);
+#if ASSERT
+            assert(_buffer <= (buffer + bufferSize));
+#endif
 
 #if BENCH
             ++numMessages;
