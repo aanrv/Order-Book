@@ -4,7 +4,11 @@
 #include <unistd.h>                 // read
 #include <endian.h>                 // be16toh
 
+#include <chrono>
+
 #include <iostream>                 // todo remove
+
+#define BENCH true
 
 ITCH::Parser::Parser(char const * _filename) : Parser(_filename, defaultBufferSize) {
 }
@@ -19,31 +23,40 @@ ITCH::Parser::~Parser() {
 }
 
 void ITCH::Parser::process() {
+#if BENCH
+    using std::chrono::high_resolution_clock;
+    using std::chrono::duration_cast;
+    using std::chrono::duration;
+    using std::chrono::nanoseconds;
+    unsigned long long totalbytes = 0;
+    unsigned long long numMessages = 0;
+    auto t1 = high_resolution_clock::now();
+#endif
+
     ssize_t bytesRead;
     int offset = 0;
     bool endOfSession = false;
-    unsigned long long totalbytes = 0;
-    constexpr size_t numBytesMessageLength = 2;
+    constexpr size_t messageHeaderLength = 2;
     // read file in chunks of bufferSize bytes (offset handles incomplete message from previous buffer)
     while (!endOfSession && (bytesRead = read(fdItch, buffer + offset, bufferSize - offset)) > 0) {
         offset = 0;
         char* _buffer = buffer;
         // read buffer message by message
         while (_buffer < (buffer + bufferSize)) {                       // while _buffer pointer has not gone out of bounds for buffer
-            if ((_buffer + numBytesMessageLength) > (buffer + bufferSize)) {
+            if ((_buffer + messageHeaderLength) > (buffer + bufferSize)) {
                 // handle case message size is partial
                 // message sizes are 2 bytes but only 1 byte left in buffer
                 offset = 1;
                 buffer[0] = *_buffer;
                 break;
             }
-            uint16_t msglen = be16toh(*(uint16_t *)_buffer);
-            if (msglen == 0) {
+            uint16_t messageLength = be16toh(*(uint16_t *)_buffer);            // message header contains message length, 2 byte big endian number
+            if (messageLength == 0) {
                 // check end of session
                 endOfSession = true;
                 break;
             }
-            if ((_buffer + numBytesMessageLength + msglen) > (buffer + bufferSize)) {
+            if ((_buffer + messageHeaderLength + messageLength) > (buffer + bufferSize)) {
                 // handle case current message is partial
                 // message extends past last byte in buffer
                 offset = ((buffer + bufferSize) - _buffer);             // length of partial message currently in buffer
@@ -51,13 +64,22 @@ void ITCH::Parser::process() {
                                                                         // exit loop, next read destination will start from buffer + offset, and read offset fewer bytes
                 break;
             }
-            _buffer += numBytesMessageLength;
+            _buffer += messageHeaderLength;
             //char type = *_buffer;
-            _buffer += (msglen);
-            totalbytes += (numBytesMessageLength + msglen);
+            _buffer += (messageLength);
+
+#if BENCH
+            ++numMessages;
+            totalbytes += (messageHeaderLength + messageLength);
+#endif
         }
     }
+#if BENCH
+    auto t2 = high_resolution_clock::now();
+    duration<double, std::nano> ns_double = t2 - t1;
+    std::cout << "processed " << numMessages << " in " << ns_double.count() << " ns" << std::endl;
     std::cout << "total bytes read " << totalbytes << std::endl;
+#endif
     if (bytesRead == -1) {
         std::cerr << "Failed to read bytes from start of file" << std::endl;
         std::cerr << "Stopping ITCH::Parser::process()" << std::endl;
