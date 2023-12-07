@@ -38,7 +38,7 @@ void ITCH::Parser::process() {
     bool endOfSession = false;
     constexpr size_t messageHeaderLength = 2;
     // read file in chunks of bufferSize bytes (offset handles incomplete message from previous buffer)
-    while (!endOfSession && (bytesRead = read(fdItch, buffer + offset, bufferSize - offset)) > 0) {
+    while (!endOfSession && ((bytesRead = read(fdItch, buffer + offset, bufferSize - offset)) > 0 || offset)) {
         size_t numValidBytes = bytesRead + offset;                              // number of bytes to process
                                                                                 // handles case where bytesRead < attempted and possibly offset > 0 i.e. memcpy from previous loop
         offset = 0;
