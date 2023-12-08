@@ -27,7 +27,7 @@ ITCH::Parser::~Parser() {
     delete buffer;
 }
 
-void ITCH::Parser::process() {
+void ITCH::Parser::parseITCHFile() {
 #if BENCH
     using std::chrono::high_resolution_clock;
     using std::chrono::duration_cast;
