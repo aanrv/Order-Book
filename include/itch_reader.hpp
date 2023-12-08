@@ -1,5 +1,5 @@
-#ifndef ORDER_BOOK_ITCH_PARSER_HPP
-#define ORDER_BOOK_ITCH_PARSER_HPP
+#ifndef ORDER_BOOK_ITCH_READER_HPP
+#define ORDER_BOOK_ITCH_READER_HPP
 
 #include <cstdint>
 #include <cstddef>
@@ -30,4 +30,4 @@ private:
 
 } // namespace ITCH
 
-#endif // ORDER_BOOK_ITCH_PARSER_HPP
+#endif // ORDER_BOOK_ITCH_READER_HPP
