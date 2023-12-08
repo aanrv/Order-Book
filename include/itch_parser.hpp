@@ -1,7 +1,7 @@
-#ifndef ORDER_BOOK_ITCH_PROCESSOR
-#define ORDER_BOOK_ITCH_PROCESSOR
+#ifndef ORDER_BOOK_ITCH_PARSER
+#define ORDER_BOOK_ITCH_PARSER
 
-class ITCHProcessor {
+class ITCHParser {
 
 };
 
@@ -292,5 +292,5 @@ template <> constexpr uint16_t MessageLength<NOIIMessage>                       
 template <> constexpr uint16_t MessageLength<RetailInterestMessage>             = 20;
 template <> constexpr uint16_t MessageLength<DirectListingWithCapitalRaisePriceDiscoveryMessage> = 48;
 
-#endif // ORDER_BOOK_ITCH_PROCESSOR
+#endif // ORDER_BOOK_ITCH_PARSER
 
