@@ -15,19 +15,19 @@
 #include <cassert>
 #endif
 
-ITCH::Parser::Parser(char const * _filename) : Parser(_filename, defaultBufferSize) {
+ITCH::Reader::Reader(char const * _filename) : Reader(_filename, defaultBufferSize) {
 }
 
-ITCH::Parser::Parser(char const * _filename, size_t _bufferSize) : bufferSize(_bufferSize), buffer(new char[_bufferSize]) {
+ITCH::Reader::Reader(char const * _filename, size_t _bufferSize) : bufferSize(_bufferSize), buffer(new char[_bufferSize]) {
     if ((fdItch = open(_filename, O_RDONLY)) == -1) { delete buffer; throw std::invalid_argument(std::string("Failed to open file: ") + _filename); }
 }
 
-ITCH::Parser::~Parser() {
+ITCH::Reader::~Reader() {
     close(fdItch);
     delete buffer;
 }
 
-void ITCH::Parser::parseITCHFile() {
+void ITCH::Reader::readITCHFile() {
 #if BENCH
     using std::chrono::high_resolution_clock;
     using std::chrono::duration_cast;
@@ -96,7 +96,7 @@ void ITCH::Parser::parseITCHFile() {
 #endif
     if (bytesRead == -1) {
         std::cerr << "Failed to read bytes from start of file" << std::endl;
-        std::cerr << "Stopping ITCH::Parser::process()" << std::endl;
+        std::cerr << "Stopping ITCH::Reader::process()" << std::endl;
     }
 }
 

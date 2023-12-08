@@ -6,19 +6,19 @@
 
 namespace ITCH {
 
-// Parses Nasdaq BinaryFILE and retrieves message data segments
-class Parser {
+// Reads Nasdaq BinaryFILE and retrieves message data segments
+class Reader {
 public:
-    Parser()                                                    = delete;   // must provide filename
-    Parser(char const * _filename);
-    Parser(char const * _filename, size_t _bufferSize);
+    Reader()                                                    = delete;   // must provide filename
+    Reader(char const * _filename);
+    Reader(char const * _filename, size_t _bufferSize);
 
-    Parser(const Parser& p)                                     = delete;
-    Parser& operator=(const Parser& p)                          = delete;
+    Reader(const Reader& p)                                     = delete;
+    Reader& operator=(const Reader& p)                          = delete;
 
-    ~Parser();
+    ~Reader();
 
-    void parseITCHFile();
+    void readITCHFile();
 
 private:
     static constexpr size_t defaultBufferSize = 2048;
