@@ -16,8 +16,6 @@
 #endif
 
 static constexpr size_t defaultBufferSize   = 2048;
-static constexpr size_t messageHeaderLength = 2;
-static constexpr size_t maxITCHMessageSize  = 50;
 
 ITCH::Reader::Reader(char const * _filename) : Reader(_filename, defaultBufferSize) {
 }
@@ -105,5 +103,84 @@ char const * ITCH::Reader::nextMessage() {
     }
 
     return out;
+}
+
+ITCH::Parser::Parser() : buffer(operator new(maxITCHMessageSize)) {
+}
+
+ITCH::Parser::~Parser() {
+    operator delete(buffer);
+}
+
+void const * ITCH::Parser::parse(const char* data) {
+    char messageType = data[messageTypeIndex];
+    // assert msg len matches msg type
+    // assert message length < maxMessageSize
+    switch (messageType) {
+        case 'A':
+            return createAddOrderMessage(data);
+            break;
+        case 'F':
+            return createAddOrderMPIDAttributionMessage(data);
+            break;
+        case 'E':
+            return createOrderExecutedMessage(data);
+            break;
+        case 'C':
+            return createOrderExecutedWithPriceMessage(data);
+            break;
+        case 'X':
+            return createOrderCancelMessage(data);
+            break;
+        case 'D':
+            return createOrderDeleteMessage(data);
+            break;
+        case 'U':
+            return createOrderReplaceMessage(data);
+            break;
+        case 'P':
+            return createTradeMessage(data);
+            break;
+        case 'Q':
+            return createCrossTradeMessage(data);
+            break;
+        case 'B':
+            return createBrokenTradeMessage(data);
+            break;
+        default:
+            // unhandled message type
+            return nullptr;
+    };
+}
+
+void const * ITCH::Parser::createAddOrderMessage(char const * data) {
+    return data;
+}
+void const * ITCH::Parser::createAddOrderMPIDAttributionMessage(char const * data) {
+    return data;
+}
+void const * ITCH::Parser::createOrderExecutedMessage(char const * data) {
+    return data;
+}
+void const * ITCH::Parser::createOrderExecutedWithPriceMessage(char const * data) {
+    return data;
+}
+void const * ITCH::Parser::createOrderCancelMessage(char const * data) {
+    return data;
+}
+void const * ITCH::Parser::createOrderDeleteMessage(char const * data) {
+    return data;
+}
+void const * ITCH::Parser::createOrderReplaceMessage(char const * data) {
+    return data;
+}
+void const * ITCH::Parser::createTradeMessage(char const * data) {
+    return data;
+}
+void const * ITCH::Parser::createCrossTradeMessage(char const * data) {
+    return data;
+}
+void const * ITCH::Parser::createBrokenTradeMessage(char const * data) {
+    return data;
 }
 
