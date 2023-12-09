@@ -8,6 +8,7 @@
 
 #include <iostream>                 // todo remove
 
+#define LOG     true
 #define BENCH   true
 #define ASSERT  true
 
@@ -19,7 +20,9 @@ ITCH::Reader::Reader(char const * _filename) : Reader(_filename, defaultBufferSi
 }
 
 ITCH::Reader::Reader(char const * _filename, size_t _bufferSize) : bufferSize(_bufferSize), buffer(new char[_bufferSize]), _buffer(buffer) {
+#if ASSERT
     assert(bufferSize > messageHeaderLength + maxITCHMessageSize);
+#endif
     if ((fdItch = open(_filename, O_RDONLY)) == -1) { delete buffer; throw std::invalid_argument(std::string("Failed to open file: ") + _filename); }
     if (read(fdItch, buffer, bufferSize) <= 0) { delete buffer; throw std::invalid_argument(std::string("Failed to read from file: ") + _filename); }
 }
@@ -29,9 +32,13 @@ ITCH::Reader::~Reader() {
     delete buffer;
 }
 
-char const *ITCH::Reader::nextMessage() {
-    using std::cout; using std::endl;
-    static long long totalbytes;
+char const * ITCH::Reader::nextMessage() {
+#if LOG
+    static long long totalBytesRead;
+#endif
+#if ASSERT
+    assert(_buffer < (buffer + bufferSize));
+#endif
 
     // message header is 2 bytes
     // if attempting to read header will go out of bounds
@@ -40,14 +47,14 @@ char const *ITCH::Reader::nextMessage() {
     if ((_buffer + messageHeaderLength) > (buffer + bufferSize)) {
         buffer[0] = *_buffer;
         constexpr size_t remainingLength = 1;
-        if (read(fdItch, buffer + remainingLength, bufferSize - remainingLength) <= 0) { cout << "read fail" << endl; return nullptr; }
+        if (read(fdItch, buffer + remainingLength, bufferSize - remainingLength) <= 0) return nullptr;
         _buffer = buffer;
     }
 
     // message header is 2 byte big endian number containing message length
     uint16_t messageLength = be16toh(*(uint16_t *)_buffer);
     // 0 message size indicates end of session
-    if (messageLength == 0) { cout << "0 len msg" << endl; return nullptr; }
+    if (messageLength == 0) return nullptr;
 
     // handle case if current message is partial
     // i.e. message extends past last byte in buffer
@@ -60,7 +67,7 @@ char const *ITCH::Reader::nextMessage() {
         std::memcpy(buffer, _buffer, offset);               // copy length of partial message (offset) from end of _buffer to start of buffer
         ssize_t readBytes = read(fdItch, buffer + offset, bufferSize - offset);
         if (readBytes <= 0) {
-            if (readBytes == 0) { cout << "no bytes left after partial message, incomplete file" << endl; return nullptr; }
+            if (readBytes == 0) return nullptr;
             if (readBytes == -1) { delete buffer; throw std::ios_base::failure("Failed to read from file"); }
         }
         _buffer = buffer;
@@ -68,14 +75,20 @@ char const *ITCH::Reader::nextMessage() {
 
     char const *out = _buffer;
     _buffer += (messageHeaderLength + messageLength);
-    totalbytes += (messageHeaderLength + messageLength);
-    cout << "msgtype " << *(out + 2) << " totalbytes " << totalbytes << endl;
 
+#if LOG
+    totalBytesRead += (messageHeaderLength + messageLength);
+    std::cout << "msgtype " << *(out + 2) << " len " << messageLength << " totalbytesread " << totalBytesRead << " buffer remaining " << (buffer + bufferSize - _buffer) << std::endl;
+#endif
+
+#if ASSERT
     assert(_buffer <= (buffer + bufferSize));
+#endif
+
     // if entire buffer processed, perform read and reset _buffer
-    // do this at end so _buffer pointer is left in valid state after function call
+    // do this at end so _buffer pointer is left in a valid state after function call
     if (_buffer == (buffer + bufferSize)) {
-        if (read(fdItch, buffer, bufferSize) <= 0) { cout << "oob" << endl;return nullptr;  }
+        if (read(fdItch, buffer, bufferSize) <= 0) return nullptr;
         _buffer = buffer;
     }
 
