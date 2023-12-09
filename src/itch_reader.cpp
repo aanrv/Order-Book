@@ -8,7 +8,7 @@
 
 #include <iostream>                 // todo remove
 
-#define LOG     false
+#define LOG     true
 #define ASSERT  true
 
 #if ASSERT
@@ -54,7 +54,9 @@ char const * ITCH::Reader::nextMessage() {
     if ((_buffer + messageHeaderLength) > (buffer + bufferSize)) {
         buffer[0] = *_buffer;
         constexpr size_t remainingLength = 1;
-        if (read(fdItch, buffer + remainingLength, bufferSize - remainingLength) <= 0) return nullptr;
+        ssize_t readBytes = read(fdItch, buffer + remainingLength, bufferSize - remainingLength);
+        if (readBytes <= 0) return nullptr;
+        validBytes = readBytes + remainingLength;
         _buffer = buffer;
     }
 
@@ -77,6 +79,7 @@ char const * ITCH::Reader::nextMessage() {
             if (readBytes == 0) return nullptr;
             if (readBytes == -1) { delete buffer; throw std::ios_base::failure("Failed to read from file"); }
         }
+        validBytes = readBytes + offset;
         _buffer = buffer;
     }
 
@@ -95,7 +98,9 @@ char const * ITCH::Reader::nextMessage() {
     // if entire buffer processed, perform read and reset _buffer
     // do this at end so _buffer pointer is left in a valid state after function call
     if (_buffer == (buffer + bufferSize)) {
-        if (read(fdItch, buffer, bufferSize) <= 0) return nullptr;
+        ssize_t readBytes = read(fdItch, buffer, bufferSize);
+        if (readBytes <= 0) return nullptr;
+        validBytes = readBytes;
         _buffer = buffer;
     }
 

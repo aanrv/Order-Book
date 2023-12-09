@@ -26,6 +26,7 @@ private:
     size_t const    bufferSize;
     char * const    buffer;
     char *          _buffer;
+    size_t          validBytes;
 };
 
 } // namespace ITCH
