@@ -342,47 +342,30 @@ private:
     size_t          validBytes;
 };
 
-class Parser {
-
-public:
-
-    Parser();
-
-    Parser(const Parser&)           = delete;
-    Parser operator=(const Parser&) = delete;
-
-    ~Parser();
-
-    void const * parse(const char* data);
-
-private:
-
-    void * const buffer;
-
-    void const * createSystemEventMessage(char const * data);
-    void const * createStockDirectoryMessage(char const *);
-    void const * createStockTradingActionMessage(char const *);
-    void const * createRegSHORestrictionMessage(char const *);
-    void const * createMarketParticipantPositionMessage(char const *);
-    void const * createMWCBDeclineLevelMessage(char const *);
-    void const * createMWCBStatusMessage(char const *);
-    void const * createIPOQuotingPeriodUpdateMessage(char const *);
-    void const * createLULDAuctionCollarMessage(char const *);
-    void const * createOperationalHaltMessage(char const *);
-    void const * createAddOrderMessage(char const *);
-    void const * createAddOrderMPIDAttributionMessage(char const *);
-    void const * createOrderExecutedMessage(char const *);
-    void const * createOrderExecutedWithPriceMessage(char const *);
-    void const * createOrderCancelMessage(char const *);
-    void const * createOrderDeleteMessage(char const *);
-    void const * createOrderReplaceMessage(char const *);
-    void const * createTradeMessage(char const *);
-    void const * createCrossTradeMessage(char const *);
-    void const * createBrokenTradeMessage(char const *);
-    void const * createNOIIMessage(char const *);
-    void const * createRetailInterestMessage(char const *);
-    void const * createDirectListingWithCapitalRaisePriceDiscoveryMessage(char const *);
-
+namespace Parser {
+    SystemEventMessage                  createSystemEventMessage(char const * data);
+    StockDirectoryMessage               createStockDirectoryMessage(char const *);
+    StockTradingActionMessage           createStockTradingActionMessage(char const *);
+    RegSHORestrictionMessage            createRegSHORestrictionMessage(char const *);
+    MarketParticipantPositionMessage    createMarketParticipantPositionMessage(char const *);
+    MWCBDeclineLevelMessage             createMWCBDeclineLevelMessage(char const *);
+    MWCBStatusMessage                   createMWCBStatusMessage(char const *);
+    IPOQuotingPeriodUpdateMessage       createIPOQuotingPeriodUpdateMessage(char const *);
+    LULDAuctionCollarMessage            createLULDAuctionCollarMessage(char const *);
+    OperationalHaltMessage              createOperationalHaltMessage(char const *);
+    AddOrderMessage                     createAddOrderMessage(char const *);
+    AddOrderMPIDAttributionMessage      createAddOrderMPIDAttributionMessage(char const *);
+    OrderExecutedMessage                createOrderExecutedMessage(char const *);
+    OrderExecutedWithPriceMessage       createOrderExecutedWithPriceMessage(char const *);
+    OrderCancelMessage                  createOrderCancelMessage(char const *);
+    OrderDeleteMessage                  createOrderDeleteMessage(char const *);
+    OrderReplaceMessage                 createOrderReplaceMessage(char const *);
+    TradeMessage                        createTradeMessage(char const *);
+    CrossTradeMessage                   createCrossTradeMessage(char const *);
+    BrokenTradeMessage                  createBrokenTradeMessage(char const *);
+    NOIIMessage                         createNOIIMessage(char const *);
+    RetailInterestMessage               createRetailInterestMessage(char const *);
+    DirectListingWithCapitalRaisePriceDiscoveryMessage createDirectListingWithCapitalRaisePriceDiscoveryMessage(char const *);
 };
 
 } // namespace ITCH
