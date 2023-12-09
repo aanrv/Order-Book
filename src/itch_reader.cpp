@@ -37,7 +37,7 @@ char const *ITCH::Reader::nextMessage() {
     // if attempting to read header will go out of bounds
     // copy first byte of header to beginning of buffer
     // and fill in the remaining buffer bytes with a new read
-    if ((_buffer + messageHeaderLength) >= (buffer + bufferSize)) {
+    if ((_buffer + messageHeaderLength) > (buffer + bufferSize)) {
         buffer[0] = *_buffer;
         constexpr size_t remainingLength = 1;
         if (read(fdItch, buffer + remainingLength, bufferSize - remainingLength) <= 0) { cout << "read fail" << endl; return nullptr; }
