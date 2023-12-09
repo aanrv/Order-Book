@@ -18,8 +18,10 @@
 ITCH::Reader::Reader(char const * _filename) : Reader(_filename, defaultBufferSize) {
 }
 
-ITCH::Reader::Reader(char const * _filename, size_t _bufferSize) : bufferSize(_bufferSize), buffer(new char[_bufferSize]) {
+ITCH::Reader::Reader(char const * _filename, size_t _bufferSize) : bufferSize(_bufferSize), buffer(new char[_bufferSize]), _buffer(buffer) {
+    assert(bufferSize > messageHeaderLength + maxITCHMessageSize);
     if ((fdItch = open(_filename, O_RDONLY)) == -1) { delete buffer; throw std::invalid_argument(std::string("Failed to open file: ") + _filename); }
+    if (read(fdItch, buffer, bufferSize) <= 0) { delete buffer; throw std::invalid_argument(std::string("Failed to read from file: ") + _filename); }
 }
 
 ITCH::Reader::~Reader() {
@@ -27,7 +29,60 @@ ITCH::Reader::~Reader() {
     delete buffer;
 }
 
-void ITCH::Reader::readITCHFile() {
+char const *ITCH::Reader::nextMessage() {
+    using std::cout; using std::endl;
+    static long long totalbytes;
+
+    // message header is 2 bytes
+    // if attempting to read header will go out of bounds
+    // copy first byte of header to beginning of buffer
+    // and fill in the remaining buffer bytes with a new read
+    if ((_buffer + messageHeaderLength) >= (buffer + bufferSize)) {
+        buffer[0] = *_buffer;
+        constexpr size_t remainingLength = 1;
+        if (read(fdItch, buffer + remainingLength, bufferSize - remainingLength) <= 0) { cout << "read fail" << endl; return nullptr; }
+        _buffer = buffer;
+    }
+
+    // message header is 2 byte big endian number containing message length
+    uint16_t messageLength = be16toh(*(uint16_t *)_buffer);
+    // 0 message size indicates end of session
+    if (messageLength == 0) { cout << "0 len msg" << endl; return nullptr; }
+
+    // handle case if current message is partial
+    // i.e. message extends past last byte in buffer
+    // copy current message to beginning of this buffer
+    // fill remaining buffer with read
+    // this will overflow if bufferSize > 2+messageLength, but this is already checked for in constructor
+    // update maxITCHMessageSize according to NASDAQ spec
+    if ((_buffer + messageHeaderLength + messageLength) > (buffer + bufferSize)) {
+        size_t offset = (buffer + bufferSize - _buffer);    // length of partial message remaining in buffer
+        std::memcpy(buffer, _buffer, offset);               // copy length of partial message (offset) from end of _buffer to start of buffer
+        ssize_t readBytes = read(fdItch, buffer + offset, bufferSize - offset);
+        if (readBytes <= 0) {
+            if (readBytes == 0) { cout << "no bytes left after partial message, incomplete file" << endl; return nullptr; }
+            if (readBytes == -1) { delete buffer; throw std::ios_base::failure("Failed to read from file"); }
+        }
+        _buffer = buffer;
+    }
+
+    char const *out = _buffer;
+    _buffer += (messageHeaderLength + messageLength);
+    totalbytes += (messageHeaderLength + messageLength);
+    cout << "msgtype " << *(out + 2) << " totalbytes " << totalbytes << endl;
+
+    assert(_buffer <= (buffer + bufferSize));
+    // if entire buffer processed, perform read and reset _buffer
+    // do this at end so _buffer pointer is left in valid state after function call
+    if (_buffer == (buffer + bufferSize)) {
+        if (read(fdItch, buffer, bufferSize) <= 0) { cout << "oob" << endl;return nullptr;  }
+        _buffer = buffer;
+    }
+
+    return out;
+}
+/*
+void ITCH::Reader::nextMessage() {
 #if BENCH
     using std::chrono::high_resolution_clock;
     using std::chrono::duration_cast;
@@ -99,4 +154,4 @@ void ITCH::Reader::readITCHFile() {
         std::cerr << "Stopping ITCH::Reader::process()" << std::endl;
     }
 }
-
+*/

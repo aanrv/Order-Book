@@ -18,14 +18,17 @@ public:
 
     ~Reader();
 
-    void readITCHFile();
+    char const *nextMessage();
 
 private:
-    static constexpr size_t defaultBufferSize = 2048;
+    static constexpr size_t defaultBufferSize   = 2048;
+    static constexpr size_t messageHeaderLength = 2;
+    static constexpr size_t maxITCHMessageSize  = 50;
 
-    int     fdItch;
-    size_t  bufferSize;
-    char*   buffer;
+    int             fdItch;
+    size_t          bufferSize;
+    char * const    buffer;
+    char *         _buffer;
 };
 
 } // namespace ITCH
