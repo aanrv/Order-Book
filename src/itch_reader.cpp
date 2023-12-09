@@ -16,14 +16,22 @@
 #include <cassert>
 #endif
 
+static constexpr size_t defaultBufferSize   = 2048;
+static constexpr size_t messageHeaderLength = 2;
+static constexpr size_t maxITCHMessageSize  = 50;
+
 ITCH::Reader::Reader(char const * _filename) : Reader(_filename, defaultBufferSize) {
 }
 
-ITCH::Reader::Reader(char const * _filename, size_t _bufferSize) : bufferSize(_bufferSize), buffer(new char[_bufferSize]), _buffer(buffer) {
+ITCH::Reader::Reader(char const * _filename, size_t _bufferSize)
+    : fdItch(open(_filename, O_RDONLY)),
+    bufferSize(_bufferSize),
+    buffer(new char[_bufferSize]),
+    _buffer(buffer) {
 #if ASSERT
     assert(bufferSize > messageHeaderLength + maxITCHMessageSize);
 #endif
-    if ((fdItch = open(_filename, O_RDONLY)) == -1) { delete buffer; throw std::invalid_argument(std::string("Failed to open file: ") + _filename); }
+    if (fdItch == -1) { delete buffer; throw std::invalid_argument(std::string("Failed to open file: ") + _filename); }
     if (read(fdItch, buffer, bufferSize) <= 0) { delete buffer; throw std::invalid_argument(std::string("Failed to read from file: ") + _filename); }
 }
 

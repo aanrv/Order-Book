@@ -9,26 +9,23 @@ namespace ITCH {
 // Reads Nasdaq BinaryFILE and retrieves message data segments
 class Reader {
 public:
-    Reader()                                                    = delete;   // must provide filename
+    Reader()                                            = delete;   // must provide filename
+
     Reader(char const * _filename);
     Reader(char const * _filename, size_t _bufferSize);
 
-    Reader(const Reader& p)                                     = delete;
-    Reader& operator=(const Reader& p)                          = delete;
+    Reader(const Reader& p)                             = delete;
+    Reader& operator=(const Reader& p)                  = delete;
 
     ~Reader();
 
-    char const *nextMessage();
+    char const * nextMessage();
 
 private:
-    static constexpr size_t defaultBufferSize   = 2048;
-    static constexpr size_t messageHeaderLength = 2;
-    static constexpr size_t maxITCHMessageSize  = 50;
-
-    int             fdItch;
-    size_t          bufferSize;
+    int const       fdItch;
+    size_t const    bufferSize;
     char * const    buffer;
-    char *         _buffer;
+    char *          _buffer;
 };
 
 } // namespace ITCH
