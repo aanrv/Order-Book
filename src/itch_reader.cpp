@@ -8,7 +8,7 @@
 
 #include <iostream>                 // todo remove
 
-#define LOG     true
+#define LOG     false
 #define ASSERT  true
 
 #if ASSERT
@@ -118,8 +118,10 @@ ITCH::AddOrderMessage ITCH::Parser::createAddOrderMessage(char const * data) {
         " stock locate " << stockLocate << 
         " timestamp " << timestamp << 
         " order reference number " << orderReferenceNumber << 
+        " side " << side << 
         " shares " << shares << 
         " price " << price
         << endl;
+    return ITCH::AddOrderMessage();
 }
 

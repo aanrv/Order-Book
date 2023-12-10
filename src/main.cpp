@@ -7,6 +7,8 @@
 #include <chrono>
 #endif
 
+using std::cout; using std::endl;
+
 int main() {
     ITCH::Reader reader("test.txt", 16384);
 
@@ -19,11 +21,23 @@ int main() {
     auto t1 = high_resolution_clock::now();
 #endif
 
-    char const * msg;
-    while((msg = reader.nextMessage())) {
+    char const * messageData;
+    while((messageData = reader.nextMessage())) {
 #if BENCH
         ++messageCount;
 #endif
+        char messageType = messageData[ITCH::messageTypeIndex];
+        switch (messageType) {
+            case 'A': {
+                ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);
+                cout << m.timestamp << endl;
+                break;
+                      }
+            default:
+                cout << messageType << " not handled" << endl;
+                break;
+        };
+
     }
 
 #if BENCH
