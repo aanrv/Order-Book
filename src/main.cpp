@@ -22,11 +22,11 @@ int main() {
 #endif
 
     char const * messageData;
+    char dummytype;
     while((messageData = reader.nextMessage())) {
 #if BENCH
         ++messageCount;
 #endif
-        char dummytype = 0;
         char messageType = messageData[ITCH::messageTypeIndex];
         messageData += ITCH::messageHeaderLength;
         switch (messageType) {
@@ -40,7 +40,7 @@ int main() {
                 dummytype = m.messageType;
                 break;
             }
-/*            case ITCH::OrderExecutedMessageType: {
+            case ITCH::OrderExecutedMessageType: {
                 ITCH::OrderExecutedMessage m = ITCH::Parser::createOrderExecutedMessage(messageData);
                 dummytype = m.messageType;
                 break;
@@ -79,13 +79,12 @@ int main() {
                 ITCH::BrokenTradeMessage m = ITCH::Parser::createBrokenTradeMessage(messageData);
                 dummytype = m.messageType;
                 break;
-            }*/
+            }
             default: {
-                cout << dummytype;
                 break;
             }
         };
-
+        cout << dummytype << endl;
     }
 
 #if BENCH
