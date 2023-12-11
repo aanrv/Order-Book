@@ -113,8 +113,12 @@ ITCH::AddOrderMessage ITCH::Parser::createAddOrderMessage(char const * data) {
     char side                       = *(data + 19);
     uint32_t shares                 = be32toh(*(uint32_t *)(data + 20));
     uint32_t price                  = be32toh(*(uint32_t *)(data + 32));
+    std::string symbol;
+    for (size_t i = 24; i < 24 + 8; ++i) { symbol += data[i]; }
     cout <<
         "add order " << 
+        " symbol " << symbol << 
+        " type " << *data << 
         " stock locate " << stockLocate << 
         " timestamp " << timestamp << 
         " order reference number " << orderReferenceNumber << 

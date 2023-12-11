@@ -10,7 +10,7 @@
 using std::cout; using std::endl;
 
 int main() {
-    ITCH::Reader reader("test.txt", 16384);
+    ITCH::Reader reader("spec/12302019.NASDAQ_ITCH50", 16384);
 
 #if BENCH
     using std::chrono::high_resolution_clock;
@@ -27,14 +27,16 @@ int main() {
         ++messageCount;
 #endif
         char messageType = messageData[ITCH::messageTypeIndex];
+        messageData += 2;
         switch (messageType) {
             case 'A': {
+                cout << '\n';
                 ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);
                 cout << m.timestamp << endl;
                 break;
                       }
             default:
-                cout << messageType << " not handled" << endl;
+                cout << messageType;
                 break;
         };
 
