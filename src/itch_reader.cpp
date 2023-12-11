@@ -235,7 +235,6 @@ ITCH::OrderReplaceMessage ITCH::Parser::createOrderReplaceMessage(char const * d
         " type " << messageType << 
         " stock locate " << stockLocate << 
         " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
         " orig order " << originalOrderReferenceNumber <<
         " new order " << newOrderReferenceNumber <<
         " shares " << shares << 
@@ -254,7 +253,7 @@ ITCH::TradeMessage ITCH::Parser::createTradeMessage(char const * data) {
     uint32_t price                  = be32toh(*(uint32_t *)(data + 32));
 #if LOG
     std::cout <<
-        "order replace msg" << 
+        "trade msg" << 
         " type " << messageType << 
         " stock locate " << stockLocate << 
         " timestamp " << timestamp << 
@@ -287,19 +286,19 @@ ITCH::CrossTradeMessage ITCH::Parser::createCrossTradeMessage(char const * data)
     return ITCH::CrossTradeMessage{messageType, stockLocate, timestamp, orderReferenceNumber, shares, crossPrice};
 }
 ITCH::BrokenTradeMessage ITCH::Parser::createBrokenTradeMessage(char const * data) {
-    char messageType                = *data;
-    uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
-    uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
-    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+    char messageType        = *data;
+    uint16_t stockLocate    = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp      = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t matchNumber    = be64toh(*(uint64_t *)(data + 11));
 #if LOG
     std::cout <<
         "broken trade msg" << 
         " type " << messageType << 
         " stock locate " << stockLocate << 
         " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
+        " match number " << matchNumber << 
         std::endl;
 #endif
-    return ITCH::BrokenTradeMessage{messageType, stockLocate, timestamp, orderReferenceNumber};
+    return ITCH::BrokenTradeMessage{messageType, stockLocate, timestamp, matchNumber};
 }
 

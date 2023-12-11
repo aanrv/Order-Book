@@ -186,7 +186,6 @@ struct OrderExecutedWithPriceMessage {
 struct OrderCancelMessage {
     char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
     uint64_t    orderReferenceNumber;
     uint32_t    cancelledShares;
@@ -195,7 +194,6 @@ struct OrderCancelMessage {
 struct OrderDeleteMessage {
     char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
     uint64_t    orderReferenceNumber;
 };
@@ -203,7 +201,6 @@ struct OrderDeleteMessage {
 struct OrderReplaceMessage {
     char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
     uint64_t    originalOrderReferenceNumber;
     uint64_t    newOrderReferenceNumber;
@@ -214,34 +211,27 @@ struct OrderReplaceMessage {
 struct TradeMessage {
     char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
     uint64_t    orderReferenceNumber;
     char        buySellIndicator;
     uint32_t    shares;
-    uint8_t     stock[8];
     uint32_t    price;
-    uint64_t    matchNumber;
 };
 
 struct CrossTradeMessage {
     char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
+    uint64_t    orderReferenceNumber;
     uint64_t    shares;
-    uint8_t     stock[8];
     uint32_t    crossPrice;
-    uint64_t    matchNumber;
-    uint8_t     crossType;
 };
 
 struct BrokenTradeMessage {
     char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
-    uint64_t    matchNumber;
+    uint64_t    orderReferenceNumber;
 };
 
 struct NOIIMessage {
