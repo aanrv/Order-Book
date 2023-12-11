@@ -8,7 +8,7 @@
 
 #include <iostream>                 // todo remove
 
-#define LOG     false
+#define LOG     true
 #define ASSERT  true
 
 #if ASSERT
@@ -86,7 +86,7 @@ char const * ITCH::Reader::nextMessage() {
 
 #if LOG
     totalBytesRead += (messageHeaderLength + messageLength);
-    std::cout << "msgtype " << *(out + 2) << " len " << messageLength << " totalbytesread " << totalBytesRead << " buffer remaining " << (buffer + bufferSize - _buffer) << std::endl;
+//    std::cout << "msgtype " << *(out + 2) << " len " << messageLength << " totalbytesread " << totalBytesRead << " buffer remaining " << (buffer + bufferSize - _buffer) << std::endl;
 #endif
 
 #if ASSERT
@@ -106,26 +106,200 @@ char const * ITCH::Reader::nextMessage() {
 }
 
 ITCH::AddOrderMessage ITCH::Parser::createAddOrderMessage(char const * data) {
-    using std::cout; using std::endl;
+    char messageType                = *data;
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
-    uint16_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
     char side                       = *(data + 19);
     uint32_t shares                 = be32toh(*(uint32_t *)(data + 20));
     uint32_t price                  = be32toh(*(uint32_t *)(data + 32));
-    std::string symbol;
-    for (size_t i = 24; i < 24 + 8; ++i) { symbol += data[i]; }
-    cout <<
+#if LOG
+    std::cout <<
         "add order " << 
-        " symbol " << symbol << 
-        " type " << *data << 
+        " type " << messageType << 
         " stock locate " << stockLocate << 
         " timestamp " << timestamp << 
         " order reference number " << orderReferenceNumber << 
         " side " << side << 
         " shares " << shares << 
-        " price " << price
-        << endl;
-    return ITCH::AddOrderMessage();
+        " price " << price << 
+        std::endl;
+#endif
+    return ITCH::AddOrderMessage{messageType, stockLocate, timestamp, orderReferenceNumber, side, shares, price};
+}
+ITCH::AddOrderMPIDAttributionMessage ITCH::Parser::createAddOrderMPIDAttributionMessage(char const * data) {
+    char messageType                = *data;
+    uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+    char side                       = *(data + 19);
+    uint32_t shares                 = be32toh(*(uint32_t *)(data + 20));
+    uint32_t price                  = be32toh(*(uint32_t *)(data + 32));
+#if LOG
+    std::cout <<
+        "add order mpid" << 
+        " type " << messageType << 
+        " stock locate " << stockLocate << 
+        " timestamp " << timestamp << 
+        " order reference number " << orderReferenceNumber << 
+        " side " << side << 
+        " shares " << shares << 
+        " price " << price << 
+        std::endl;
+#endif
+    return ITCH::AddOrderMPIDAttributionMessage{messageType, stockLocate, timestamp, orderReferenceNumber, side, shares, price};
+}
+ITCH::OrderExecutedMessage ITCH::Parser::createOrderExecutedMessage(char const * data) {
+    char messageType                = *data;
+    uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+    uint32_t executedShares         = be32toh(*(uint32_t *)(data + 19));
+#if LOG
+    std::cout <<
+        "order exec msg" << 
+        " type " << messageType << 
+        " stock locate " << stockLocate << 
+        " timestamp " << timestamp << 
+        " order reference number " << orderReferenceNumber << 
+        " exec shares " << executedShares << 
+        std::endl;
+#endif
+    return ITCH::OrderExecutedMessage{messageType, stockLocate, timestamp, orderReferenceNumber, executedShares};
+}
+ITCH::OrderExecutedWithPriceMessage ITCH::Parser::createOrderExecutedWithPriceMessage(char const * data) {
+    char messageType                = *data;
+    uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+    uint32_t executedShares         = be32toh(*(uint32_t *)(data + 19));
+    uint32_t executionPrice         = be32toh(*(uint32_t *)(data + 32));
+#if LOG
+    std::cout <<
+        "order exec price msg" << 
+        " type " << messageType << 
+        " stock locate " << stockLocate << 
+        " timestamp " << timestamp << 
+        " order reference number " << orderReferenceNumber << 
+        " exec shares " << executedShares <<
+        " exec price " << executionPrice <<
+        std::endl;
+#endif
+    return ITCH::OrderExecutedWithPriceMessage{messageType, stockLocate, timestamp, orderReferenceNumber, executedShares, executionPrice};
+}
+ITCH::OrderCancelMessage ITCH::Parser::createOrderCancelMessage(char const * data) {
+    char messageType                = *data;
+    uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+    uint32_t cancelledShares        = be32toh(*(uint32_t *)(data + 19));
+#if LOG
+    std::cout <<
+        "order cancel msg" << 
+        " type " << messageType << 
+        " stock locate " << stockLocate << 
+        " timestamp " << timestamp << 
+        " order reference number " << orderReferenceNumber << 
+        " cancelled shares " << cancelledShares <<
+        std::endl;
+#endif
+    return ITCH::OrderCancelMessage{messageType, stockLocate, timestamp, orderReferenceNumber, cancelledShares};
+}
+ITCH::OrderDeleteMessage ITCH::Parser::createOrderDeleteMessage(char const * data) {
+    char messageType                = *data;
+    uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+#if LOG
+    std::cout <<
+        "order delete msg" << 
+        " type " << messageType << 
+        " stock locate " << stockLocate << 
+        " timestamp " << timestamp << 
+        " order reference number " << orderReferenceNumber << 
+        std::endl;
+#endif
+    return ITCH::OrderDeleteMessage{messageType, stockLocate, timestamp, orderReferenceNumber};
+}
+ITCH::OrderReplaceMessage ITCH::Parser::createOrderReplaceMessage(char const * data) {
+    char messageType                        = *data;
+    uint16_t stockLocate                    = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp                      = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t originalOrderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+    uint64_t newOrderReferenceNumber        = be64toh(*(uint64_t *)(data + 19));
+    uint32_t shares                         = be32toh(*(uint32_t *)(data + 27));
+    uint32_t price                          = be32toh(*(uint32_t *)(data + 31));
+#if LOG
+    std::cout <<
+        "order replace msg" << 
+        " type " << messageType << 
+        " stock locate " << stockLocate << 
+        " timestamp " << timestamp << 
+        " order reference number " << orderReferenceNumber << 
+        " orig order " << originalOrderReferenceNumber <<
+        " new order " << newOrderReferenceNumber <<
+        " shares " << shares << 
+        " price " << price << 
+        std::endl;
+#endif
+    return ITCH::OrderReplaceMessage{messageType, stockLocate, timestamp, originalOrderReferenceNumber, newOrderReferenceNumber, shares, price};
+}
+ITCH::TradeMessage ITCH::Parser::createTradeMessage(char const * data) {
+    char messageType                = *data;
+    uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+    char side                       = *(data + 19);
+    uint32_t shares                 = be32toh(*(uint32_t *)(data + 20));
+    uint32_t price                  = be32toh(*(uint32_t *)(data + 32));
+#if LOG
+    std::cout <<
+        "order replace msg" << 
+        " type " << messageType << 
+        " stock locate " << stockLocate << 
+        " timestamp " << timestamp << 
+        " order reference number " << orderReferenceNumber << 
+        " side " << side << 
+        " shares " << shares << 
+        " price " << price << 
+        std::endl;
+#endif
+    return ITCH::TradeMessage{messageType, stockLocate, timestamp, orderReferenceNumber, side, shares, price};
+}
+ITCH::CrossTradeMessage ITCH::Parser::createCrossTradeMessage(char const * data) {
+    char messageType                = *data;
+    uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+    uint64_t shares                 = be32toh(*(uint64_t *)(data + 11));
+    uint32_t crossPrice             = be32toh(*(uint32_t *)(data + 27));
+#if LOG
+    std::cout <<
+        "cross trade msg" << 
+        " type " << messageType << 
+        " stock locate " << stockLocate << 
+        " timestamp " << timestamp << 
+        " order reference number " << orderReferenceNumber << 
+        " shares " << shares << 
+        " cross price " << crossPrice << 
+        std::endl;
+#endif
+    return ITCH::CrossTradeMessage{messageType, stockLocate, timestamp, orderReferenceNumber, shares, crossPrice};
+}
+ITCH::BrokenTradeMessage ITCH::Parser::createBrokenTradeMessage(char const * data) {
+    char messageType                = *data;
+    uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
+    uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
+    uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
+#if LOG
+    std::cout <<
+        "broken trade msg" << 
+        " type " << messageType << 
+        " stock locate " << stockLocate << 
+        " timestamp " << timestamp << 
+        " order reference number " << orderReferenceNumber << 
+        std::endl;
+#endif
+    return ITCH::BrokenTradeMessage{messageType, stockLocate, timestamp, orderReferenceNumber};
 }
 

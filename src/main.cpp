@@ -26,18 +26,64 @@ int main() {
 #if BENCH
         ++messageCount;
 #endif
+        char dummytype = 0;
         char messageType = messageData[ITCH::messageTypeIndex];
-        messageData += 2;
+        messageData += ITCH::messageHeaderLength;
         switch (messageType) {
-            case 'A': {
-                cout << '\n';
+            case ITCH::AddOrderMessageType: {
                 ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);
-                cout << m.timestamp << endl;
+                dummytype = m.messageType;
                 break;
-                      }
-            default:
-                cout << messageType;
+            }
+            case ITCH::AddOrderMPIDAttributionMessageType: {
+                ITCH::AddOrderMPIDAttributionMessage m = ITCH::Parser::createAddOrderMPIDAttributionMessage(messageData);
+                dummytype = m.messageType;
                 break;
+            }
+/*            case ITCH::OrderExecutedMessageType: {
+                ITCH::OrderExecutedMessage m = ITCH::Parser::createOrderExecutedMessage(messageData);
+                dummytype = m.messageType;
+                break;
+            }
+            case ITCH::OrderExecutedWithPriceMessageType: {
+                ITCH::OrderExecutedWithPriceMessage m = ITCH::Parser::createOrderExecutedWithPriceMessage(messageData);
+                dummytype = m.messageType;
+                break;
+            }
+            case ITCH::OrderCancelMessageType: {
+                ITCH::OrderCancelMessage m = ITCH::Parser::createOrderCancelMessage(messageData);
+                dummytype = m.messageType;
+                break;
+            }
+            case ITCH::OrderDeleteMessageType: {
+                ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
+                dummytype = m.messageType;
+                break;
+            }
+            case ITCH::OrderReplaceMessageType: {
+                ITCH::OrderReplaceMessage m = ITCH::Parser::createOrderReplaceMessage(messageData);
+                dummytype = m.messageType;
+                break;
+            }
+            case ITCH::TradeMessageType: {
+                ITCH::TradeMessage m = ITCH::Parser::createTradeMessage(messageData);
+                dummytype = m.messageType;
+                break;
+            }
+            case ITCH::CrossTradeMessageType: {
+                ITCH::CrossTradeMessage m = ITCH::Parser::createCrossTradeMessage(messageData);
+                dummytype = m.messageType;
+                break;
+            }
+            case ITCH::BrokenTradeMessageType: {
+                ITCH::BrokenTradeMessage m = ITCH::Parser::createBrokenTradeMessage(messageData);
+                dummytype = m.messageType;
+                break;
+            }*/
+            default: {
+                cout << dummytype;
+                break;
+            }
         };
 
     }

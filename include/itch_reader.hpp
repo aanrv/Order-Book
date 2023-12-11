@@ -35,7 +35,7 @@ constexpr char RetailInterestMessageType            = 'N';
 constexpr char DirectListingWithCapitalRaisePriceDiscoveryMessageType = 'O';
 
 struct SystemEventMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -43,7 +43,7 @@ struct SystemEventMessage {
 };
 
 struct StockDirectoryMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -64,7 +64,7 @@ struct StockDirectoryMessage {
 };
 
 struct StockTradingActionMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -75,7 +75,7 @@ struct StockTradingActionMessage {
 };
 
 struct RegSHORestrictionMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    locateCode;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -84,7 +84,7 @@ struct RegSHORestrictionMessage {
 };
 
 struct MarketParticipantPositionMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -96,7 +96,7 @@ struct MarketParticipantPositionMessage {
 };
 
 struct MWCBDeclineLevelMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -106,7 +106,7 @@ struct MWCBDeclineLevelMessage {
 };
 
 struct MWCBStatusMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -114,7 +114,7 @@ struct MWCBStatusMessage {
 };
 
 struct IPOQuotingPeriodUpdateMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -125,7 +125,7 @@ struct IPOQuotingPeriodUpdateMessage {
 };
 
 struct LULDAuctionCollarMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -137,7 +137,7 @@ struct LULDAuctionCollarMessage {
 };
 
 struct OperationalHaltMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -147,54 +147,44 @@ struct OperationalHaltMessage {
 };
 
 struct AddOrderMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
     uint64_t    orderReferenceNumber;
-    uint8_t     buySellIndicator;
+    char        buySellIndicator;
     uint32_t    shares;
-    uint8_t     stock[8];
     uint32_t    price;
 };
 
 struct AddOrderMPIDAttributionMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
     uint64_t    orderReferenceNumber;
-    uint8_t     buySellIndicator;
+    char        buySellIndicator;
     uint32_t    shares;
-    uint8_t     stock[8];
     uint32_t    price;
-    uint8_t     attribution[4];
 };
 
 struct OrderExecutedMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
     uint64_t    orderReferenceNumber;
     uint32_t    executedShares;
-    uint64_t    matchNumber;
 };
 
 struct OrderExecutedWithPriceMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
-    uint16_t    trackingNumber;
     uint64_t    timestamp;
     uint64_t    orderReferenceNumber;
     uint32_t    executedShares;
-    uint64_t    matchNumber;
-    uint8_t     printable;
     uint32_t    executionPrice;
 };
 
 struct OrderCancelMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -203,7 +193,7 @@ struct OrderCancelMessage {
 };
 
 struct OrderDeleteMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -211,7 +201,7 @@ struct OrderDeleteMessage {
 };
 
 struct OrderReplaceMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -222,12 +212,12 @@ struct OrderReplaceMessage {
 };
 
 struct TradeMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
     uint64_t    orderReferenceNumber;
-    uint8_t     buySellIndicator;
+    char        buySellIndicator;
     uint32_t    shares;
     uint8_t     stock[8];
     uint32_t    price;
@@ -235,7 +225,7 @@ struct TradeMessage {
 };
 
 struct CrossTradeMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -247,7 +237,7 @@ struct CrossTradeMessage {
 };
 
 struct BrokenTradeMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -255,7 +245,7 @@ struct BrokenTradeMessage {
 };
 
 struct NOIIMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -271,7 +261,7 @@ struct NOIIMessage {
 };
 
 struct RetailInterestMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
@@ -280,7 +270,7 @@ struct RetailInterestMessage {
 };
 
 struct DirectListingWithCapitalRaisePriceDiscoveryMessage {
-    uint8_t     messageType;
+    char        messageType;
     uint16_t    stockLocate;
     uint16_t    trackingNumber;
     uint64_t    timestamp;
