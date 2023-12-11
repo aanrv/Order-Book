@@ -2,7 +2,7 @@ CC		= g++
 CPPVER	= c++14
 SRC		= src
 FLAGS	= -Wall -Wextra -Werror
-INC		= /home/varan/Documents/Order-Book
+INC		= $(PWD)
 
 order-book: itch_reader.o main.o
 	$(CC) -std=$(CPPVER) $(FLAGS) $(SRC)/itch_reader.o $(SRC)/main.o -o order-book
