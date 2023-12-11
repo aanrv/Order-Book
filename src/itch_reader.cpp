@@ -8,7 +8,7 @@
 
 #include <iostream>                 // todo remove
 
-#define LOG     true
+#define LOG     false
 #define ASSERT  true
 
 #if ASSERT
