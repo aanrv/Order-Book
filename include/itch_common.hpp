@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <ostream>
 
 namespace ITCH {
 
@@ -287,6 +288,104 @@ struct DirectListingWithCapitalRaisePriceDiscoveryMessage {
 };
 
 } // namespace ITCH
+
+inline std::ostream& operator<<(std::ostream& os, ITCH::AddOrderMessage m) {
+    os <<
+        "type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp <<
+        " order reference number " << m.orderReferenceNumber <<
+        " side " << m.buySellIndicator <<
+        " shares " << m.shares <<
+        " price " << m.price;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, ITCH::AddOrderMPIDAttributionMessage m) {
+    os <<
+        "type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp <<
+        " order reference number " << m.orderReferenceNumber <<
+        " side " << m.buySellIndicator <<
+        " shares " << m.shares <<
+        " price " << m.price;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, ITCH::OrderExecutedMessage m) {
+    os <<
+        "type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp <<
+        " order reference number " << m.orderReferenceNumber <<
+        " exec shares " << m.executedShares;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, ITCH::OrderExecutedWithPriceMessage m) {
+    os <<
+        "type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp <<
+        " order reference number " << m.orderReferenceNumber <<
+        " exec shares " << m.executedShares <<
+        " exec price " << m.executionPrice;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, ITCH::OrderCancelMessage m) {
+    os <<
+        "type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp <<
+        " order reference number " << m.orderReferenceNumber <<
+        " cancelled shares " << m.cancelledShares;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, ITCH::OrderDeleteMessage m) {
+    os <<
+        "type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp <<
+        " order reference number " << m.orderReferenceNumber;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, ITCH::OrderReplaceMessage m) {
+    os <<
+        "type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp <<
+        " orig order " << m.originalOrderReferenceNumber <<
+        " new order " << m.newOrderReferenceNumber <<
+        " shares " << m.shares <<
+        " price " << m.price;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, ITCH::TradeMessage m) {
+    os <<
+        "type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp <<
+        " order reference number " << m.orderReferenceNumber <<
+        " side " << m.buySellIndicator <<
+        " shares " << m.shares <<
+        " price " << m.price;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, ITCH::CrossTradeMessage m) {
+    os <<
+        " type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp <<
+        " order reference number " << m.orderReferenceNumber <<
+        " shares " << m.shares <<
+        " cross price " << m.crossPrice;
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, ITCH::BrokenTradeMessage m) {
+    os <<
+        "type " << m.messageType <<
+        " stock locate " << m.stockLocate <<
+        " timestamp " << m.timestamp;
+    return os;
+}
 
 #endif // ORDER_BOOK_ITCH_COMMON
 

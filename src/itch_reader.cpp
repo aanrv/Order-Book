@@ -114,18 +114,6 @@ ITCH::AddOrderMessage ITCH::Parser::createAddOrderMessage(char const * data) {
     char side                       = *(data + 19);
     uint32_t shares                 = be32toh(*(uint32_t *)(data + 20));
     uint32_t price                  = be32toh(*(uint32_t *)(data + 32));
-#if LOG
-    std::cout <<
-        "add order " << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
-        " side " << side << 
-        " shares " << shares << 
-        " price " << price << 
-        '\n';
-#endif
     return ITCH::AddOrderMessage{messageType, stockLocate, timestamp, orderReferenceNumber, side, shares, price};
 }
 ITCH::AddOrderMPIDAttributionMessage ITCH::Parser::createAddOrderMPIDAttributionMessage(char const * data) {
@@ -136,18 +124,6 @@ ITCH::AddOrderMPIDAttributionMessage ITCH::Parser::createAddOrderMPIDAttribution
     char side                       = *(data + 19);
     uint32_t shares                 = be32toh(*(uint32_t *)(data + 20));
     uint32_t price                  = be32toh(*(uint32_t *)(data + 32));
-#if LOG
-    std::cout <<
-        "add order mpid" << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
-        " side " << side << 
-        " shares " << shares << 
-        " price " << price << 
-        '\n';
-#endif
     return ITCH::AddOrderMPIDAttributionMessage{messageType, stockLocate, timestamp, orderReferenceNumber, side, shares, price};
 }
 ITCH::OrderExecutedMessage ITCH::Parser::createOrderExecutedMessage(char const * data) {
@@ -156,16 +132,6 @@ ITCH::OrderExecutedMessage ITCH::Parser::createOrderExecutedMessage(char const *
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
     uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
     uint32_t executedShares         = be32toh(*(uint32_t *)(data + 19));
-#if LOG
-    std::cout <<
-        "order exec msg" << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
-        " exec shares " << executedShares << 
-        '\n';
-#endif
     return ITCH::OrderExecutedMessage{messageType, stockLocate, timestamp, orderReferenceNumber, executedShares};
 }
 ITCH::OrderExecutedWithPriceMessage ITCH::Parser::createOrderExecutedWithPriceMessage(char const * data) {
@@ -175,17 +141,6 @@ ITCH::OrderExecutedWithPriceMessage ITCH::Parser::createOrderExecutedWithPriceMe
     uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
     uint32_t executedShares         = be32toh(*(uint32_t *)(data + 19));
     uint32_t executionPrice         = be32toh(*(uint32_t *)(data + 32));
-#if LOG
-    std::cout <<
-        "order exec price msg" << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
-        " exec shares " << executedShares <<
-        " exec price " << executionPrice <<
-        '\n';
-#endif
     return ITCH::OrderExecutedWithPriceMessage{messageType, stockLocate, timestamp, orderReferenceNumber, executedShares, executionPrice};
 }
 ITCH::OrderCancelMessage ITCH::Parser::createOrderCancelMessage(char const * data) {
@@ -194,16 +149,6 @@ ITCH::OrderCancelMessage ITCH::Parser::createOrderCancelMessage(char const * dat
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
     uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
     uint32_t cancelledShares        = be32toh(*(uint32_t *)(data + 19));
-#if LOG
-    std::cout <<
-        "order cancel msg" << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
-        " cancelled shares " << cancelledShares <<
-        '\n';
-#endif
     return ITCH::OrderCancelMessage{messageType, stockLocate, timestamp, orderReferenceNumber, cancelledShares};
 }
 ITCH::OrderDeleteMessage ITCH::Parser::createOrderDeleteMessage(char const * data) {
@@ -211,15 +156,6 @@ ITCH::OrderDeleteMessage ITCH::Parser::createOrderDeleteMessage(char const * dat
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
     uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
-#if LOG
-    std::cout <<
-        "order delete msg" << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
-        '\n';
-#endif
     return ITCH::OrderDeleteMessage{messageType, stockLocate, timestamp, orderReferenceNumber};
 }
 ITCH::OrderReplaceMessage ITCH::Parser::createOrderReplaceMessage(char const * data) {
@@ -230,18 +166,6 @@ ITCH::OrderReplaceMessage ITCH::Parser::createOrderReplaceMessage(char const * d
     uint64_t newOrderReferenceNumber        = be64toh(*(uint64_t *)(data + 19));
     uint32_t shares                         = be32toh(*(uint32_t *)(data + 27));
     uint32_t price                          = be32toh(*(uint32_t *)(data + 31));
-#if LOG
-    std::cout <<
-        "order replace msg" << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " orig order " << originalOrderReferenceNumber <<
-        " new order " << newOrderReferenceNumber <<
-        " shares " << shares << 
-        " price " << price << 
-        '\n';
-#endif
     return ITCH::OrderReplaceMessage{messageType, stockLocate, timestamp, originalOrderReferenceNumber, newOrderReferenceNumber, shares, price};
 }
 ITCH::TradeMessage ITCH::Parser::createTradeMessage(char const * data) {
@@ -252,18 +176,6 @@ ITCH::TradeMessage ITCH::Parser::createTradeMessage(char const * data) {
     char side                       = *(data + 19);
     uint32_t shares                 = be32toh(*(uint32_t *)(data + 20));
     uint32_t price                  = be32toh(*(uint32_t *)(data + 32));
-#if LOG
-    std::cout <<
-        "trade msg" << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
-        " side " << side << 
-        " shares " << shares << 
-        " price " << price << 
-        '\n';
-#endif
     return ITCH::TradeMessage{messageType, stockLocate, timestamp, orderReferenceNumber, side, shares, price};
 }
 ITCH::CrossTradeMessage ITCH::Parser::createCrossTradeMessage(char const * data) {
@@ -273,17 +185,6 @@ ITCH::CrossTradeMessage ITCH::Parser::createCrossTradeMessage(char const * data)
     uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
     uint64_t shares                 = be64toh(*(uint64_t *)(data + 11));
     uint32_t crossPrice             = be32toh(*(uint32_t *)(data + 27));
-#if LOG
-    std::cout <<
-        "cross trade msg" << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " order reference number " << orderReferenceNumber << 
-        " shares " << shares << 
-        " cross price " << crossPrice << 
-        '\n';
-#endif
     return ITCH::CrossTradeMessage{messageType, stockLocate, timestamp, orderReferenceNumber, shares, crossPrice};
 }
 ITCH::BrokenTradeMessage ITCH::Parser::createBrokenTradeMessage(char const * data) {
@@ -291,15 +192,6 @@ ITCH::BrokenTradeMessage ITCH::Parser::createBrokenTradeMessage(char const * dat
     uint16_t stockLocate    = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp      = be64toh(*(uint64_t *)(data + 5)) >> 16;
     uint64_t matchNumber    = be64toh(*(uint64_t *)(data + 11));
-#if LOG
-    std::cout <<
-        "broken trade msg" << 
-        " type " << messageType << 
-        " stock locate " << stockLocate << 
-        " timestamp " << timestamp << 
-        " match number " << matchNumber << 
-        '\n';
-#endif
     return ITCH::BrokenTradeMessage{messageType, stockLocate, timestamp, matchNumber};
 }
 

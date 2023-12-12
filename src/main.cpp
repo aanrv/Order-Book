@@ -2,7 +2,8 @@
 #include "include/itch_reader.hpp"
 #include <iostream>
 
-#define BENCH true
+#define LOG     true
+#define BENCH   true
 
 #if BENCH
 #include <chrono>
@@ -47,60 +48,90 @@ int main(int argc, char** argv) {
                 ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);
                 dummytype = m.messageType;
                 ++countA;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             case ITCH::AddOrderMPIDAttributionMessageType: {
                 ITCH::AddOrderMPIDAttributionMessage m = ITCH::Parser::createAddOrderMPIDAttributionMessage(messageData);
                 dummytype = m.messageType;
                 ++countB;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             case ITCH::OrderExecutedMessageType: {
                 ITCH::OrderExecutedMessage m = ITCH::Parser::createOrderExecutedMessage(messageData);
                 dummytype = m.messageType;
                 ++countC;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             case ITCH::OrderExecutedWithPriceMessageType: {
                 ITCH::OrderExecutedWithPriceMessage m = ITCH::Parser::createOrderExecutedWithPriceMessage(messageData);
                 dummytype = m.messageType;
                 ++countD;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             case ITCH::OrderCancelMessageType: {
                 ITCH::OrderCancelMessage m = ITCH::Parser::createOrderCancelMessage(messageData);
                 dummytype = m.messageType;
                 ++countE;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             case ITCH::OrderDeleteMessageType: {
                 ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
                 dummytype = m.messageType;
                 ++countF;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             case ITCH::OrderReplaceMessageType: {
                 ITCH::OrderReplaceMessage m = ITCH::Parser::createOrderReplaceMessage(messageData);
                 dummytype = m.messageType;
                 ++countG;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             case ITCH::TradeMessageType: {
                 ITCH::TradeMessage m = ITCH::Parser::createTradeMessage(messageData);
                 dummytype = m.messageType;
                 ++countH;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             case ITCH::CrossTradeMessageType: {
                 ITCH::CrossTradeMessage m = ITCH::Parser::createCrossTradeMessage(messageData);
                 dummytype = m.messageType;
                 ++countI;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             case ITCH::BrokenTradeMessageType: {
                 ITCH::BrokenTradeMessage m = ITCH::Parser::createBrokenTradeMessage(messageData);
                 dummytype = m.messageType;
                 ++countJ;
+#if LOG
+                std::cout << m << std::endl;
+#endif
                 break;
             }
             default: {
