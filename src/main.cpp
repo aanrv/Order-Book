@@ -1,3 +1,4 @@
+#include "include/itch_common.hpp"
 #include "include/itch_reader.hpp"
 #include <iostream>
 

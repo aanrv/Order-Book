@@ -1,38 +1,11 @@
 #ifndef ORDER_BOOK_ITCH_READER_HPP
 #define ORDER_BOOK_ITCH_READER_HPP
 
+#include "include/itch_common.hpp"
 #include <cstdint>
 #include <cstddef>
 
 namespace ITCH {
-
-constexpr size_t maxITCHMessageSize     = 50; 
-constexpr size_t messageHeaderLength    = 2;
-constexpr size_t messageTypeIndex       = 2;
-
-constexpr char SystemEventMessageType               = 'S';
-constexpr char StockDirectoryMessageType            = 'R';
-constexpr char StockTradingActionMessageType        = 'H';
-constexpr char RegSHORestrictionMessageType         = 'Y';
-constexpr char MarketParticipantPositionMessageType = 'L';
-constexpr char MWCBDeclineLevelMessageType          = 'V';
-constexpr char MWCBStatusMessageType                = 'W';
-constexpr char IPOQuotingPeriodUpdateMessageType    = 'K';
-constexpr char LULDAuctionCollarMessageType         = 'J';
-constexpr char OperationalHaltMessageType           = 'h';
-constexpr char AddOrderMessageType                  = 'A';
-constexpr char AddOrderMPIDAttributionMessageType   = 'F';
-constexpr char OrderExecutedMessageType             = 'E';
-constexpr char OrderExecutedWithPriceMessageType    = 'C';
-constexpr char OrderCancelMessageType               = 'X';
-constexpr char OrderDeleteMessageType               = 'D';
-constexpr char OrderReplaceMessageType              = 'U';
-constexpr char TradeMessageType                     = 'P';
-constexpr char CrossTradeMessageType                = 'Q';
-constexpr char BrokenTradeMessageType               = 'B';
-constexpr char NOIIMessageType                      = 'I';
-constexpr char RetailInterestMessageType            = 'N';
-constexpr char DirectListingWithCapitalRaisePriceDiscoveryMessageType = 'O';
 
 struct SystemEventMessage {
     char        messageType;
