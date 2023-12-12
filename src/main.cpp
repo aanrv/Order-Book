@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
         char messageType = messageData[ITCH::messageTypeIndex];
         messageData += ITCH::messageHeaderLength;
         switch (messageType) {
-            case ITCH::AddOrderMessageType: {
+            [[likely]] case ITCH::AddOrderMessageType: {
                 ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);
                 dummytype = m.messageType;
                 ++countA;
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
 #endif
                 break;
             }
-            case ITCH::OrderExecutedMessageType: {
+            [[likely]] case ITCH::OrderExecutedMessageType: {
                 ITCH::OrderExecutedMessage m = ITCH::Parser::createOrderExecutedMessage(messageData);
                 dummytype = m.messageType;
                 ++countC;
@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
 #endif
                 break;
             }
-            case ITCH::OrderDeleteMessageType: {
+            [[likely]] case ITCH::OrderDeleteMessageType: {
                 ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
                 dummytype = m.messageType;
                 ++countF;
@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
 #endif
                 break;
             }
-            case ITCH::OrderReplaceMessageType: {
+            [[likely]] case ITCH::OrderReplaceMessageType: {
                 ITCH::OrderReplaceMessage m = ITCH::Parser::createOrderReplaceMessage(messageData);
                 dummytype = m.messageType;
                 ++countG;
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
 #endif
                 break;
             }
-            case ITCH::CrossTradeMessageType: {
+            [[unlikely]] case ITCH::CrossTradeMessageType: {
                 ITCH::CrossTradeMessage m = ITCH::Parser::createCrossTradeMessage(messageData);
                 dummytype = m.messageType;
                 ++countI;
@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
 #endif
                 break;
             }
-            case ITCH::BrokenTradeMessageType: {
+            [[unlikely]] case ITCH::BrokenTradeMessageType: {
                 ITCH::BrokenTradeMessage m = ITCH::Parser::createBrokenTradeMessage(messageData);
                 dummytype = m.messageType;
                 ++countJ;

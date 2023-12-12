@@ -1,5 +1,5 @@
 CC		= g++
-CPPVER	= c++17
+CPPVER	= c++20
 SRC		= src
 FLAGS	= -Wall -Wextra -Werror
 INC		= $(PWD)
