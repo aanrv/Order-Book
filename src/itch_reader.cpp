@@ -270,7 +270,7 @@ ITCH::CrossTradeMessage ITCH::Parser::createCrossTradeMessage(char const * data)
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
     uint64_t orderReferenceNumber   = be64toh(*(uint64_t *)(data + 11));
-    uint64_t shares                 = be32toh(*(uint64_t *)(data + 11));
+    uint64_t shares                 = be64toh(*(uint64_t *)(data + 11));
     uint32_t crossPrice             = be32toh(*(uint32_t *)(data + 27));
 #if LOG
     std::cout <<
