@@ -35,6 +35,31 @@ constexpr char NOIIMessageType                      = 'I';
 constexpr char RetailInterestMessageType            = 'N';
 constexpr char DirectListingWithCapitalRaisePriceDiscoveryMessageType = 'O';
 
+template<char MessageType> constexpr uint16_t MessageLength = -1;
+template <> constexpr uint16_t MessageLength<SystemEventMessageType>                = 12;
+template <> constexpr uint16_t MessageLength<StockDirectoryMessageType>             = 39;
+template <> constexpr uint16_t MessageLength<StockTradingActionMessageType>         = 25;
+template <> constexpr uint16_t MessageLength<RegSHORestrictionMessageType>          = 20;
+template <> constexpr uint16_t MessageLength<MarketParticipantPositionMessageType>  = 26;
+template <> constexpr uint16_t MessageLength<MWCBDeclineLevelMessageType>           = 35;
+template <> constexpr uint16_t MessageLength<MWCBStatusMessageType>                 = 12;
+template <> constexpr uint16_t MessageLength<IPOQuotingPeriodUpdateMessageType>     = 28;
+template <> constexpr uint16_t MessageLength<LULDAuctionCollarMessageType>          = 35;
+template <> constexpr uint16_t MessageLength<OperationalHaltMessageType>            = 21;
+template <> constexpr uint16_t MessageLength<AddOrderMessageType>                   = 36;
+template <> constexpr uint16_t MessageLength<AddOrderMPIDAttributionMessageType>    = 40;
+template <> constexpr uint16_t MessageLength<OrderExecutedMessageType>              = 31;
+template <> constexpr uint16_t MessageLength<OrderExecutedWithPriceMessageType>     = 36;
+template <> constexpr uint16_t MessageLength<OrderCancelMessageType>                = 23;
+template <> constexpr uint16_t MessageLength<OrderDeleteMessageType>                = 19;
+template <> constexpr uint16_t MessageLength<OrderReplaceMessageType>               = 35;
+template <> constexpr uint16_t MessageLength<TradeMessageType>                      = 44;
+template <> constexpr uint16_t MessageLength<CrossTradeMessageType>                 = 40;
+template <> constexpr uint16_t MessageLength<BrokenTradeMessageType>                = 19;
+template <> constexpr uint16_t MessageLength<NOIIMessageType>                       = 50;
+template <> constexpr uint16_t MessageLength<RetailInterestMessageType>             = 20;
+template <> constexpr uint16_t MessageLength<DirectListingWithCapitalRaisePriceDiscoveryMessageType> = 48;
+
 /*
  * Unable to use this as types may differ accross message types
  * e.g. shares are 64-bit in cross trade message

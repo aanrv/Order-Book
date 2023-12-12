@@ -63,7 +63,6 @@ char const * ITCH::Reader::nextMessage() {
     uint16_t messageLength = be16toh(*(uint16_t *)_buffer);
     // 0 message size indicates end of session
     if (messageLength == 0) { std::cout << "session end" << '\n'; return nullptr; }
-
     // handle case if current message is partial
     // i.e. message extends past last byte in buffer
     // copy current message to beginning of this buffer
@@ -81,6 +80,83 @@ char const * ITCH::Reader::nextMessage() {
         validBytes = readBytes + offset;
         _buffer = buffer;
     }
+
+#if ASSERT
+    switch (_buffer[messageTypeIndex]) {
+        case SystemEventMessageType:
+            assert(messageLength == MessageLength<SystemEventMessageType>);
+            break;
+        case StockDirectoryMessageType:
+            assert(messageLength == MessageLength<StockDirectoryMessageType>);
+            break;
+        case StockTradingActionMessageType:
+            assert(messageLength == MessageLength<StockTradingActionMessageType>);
+            break;
+        case RegSHORestrictionMessageType:
+            assert(messageLength == MessageLength<RegSHORestrictionMessageType>);
+            break;
+        case MarketParticipantPositionMessageType:
+            assert(messageLength == MessageLength<MarketParticipantPositionMessageType>);
+            break;
+        case MWCBDeclineLevelMessageType:
+            assert(messageLength == MessageLength<MWCBDeclineLevelMessageType>);
+            break;
+        case MWCBStatusMessageType:
+            assert(messageLength == MessageLength<MWCBStatusMessageType>);
+            break;
+        case IPOQuotingPeriodUpdateMessageType:
+            assert(messageLength == MessageLength<IPOQuotingPeriodUpdateMessageType>);
+            break;
+        case LULDAuctionCollarMessageType:
+            assert(messageLength == MessageLength<LULDAuctionCollarMessageType>);
+            break;
+        case OperationalHaltMessageType:
+            assert(messageLength == MessageLength<OperationalHaltMessageType>);
+            break;
+        case AddOrderMessageType:
+            assert(messageLength == MessageLength<AddOrderMessageType>);
+            break;
+        case AddOrderMPIDAttributionMessageType:
+            assert(messageLength == MessageLength<AddOrderMPIDAttributionMessageType>);
+            break;
+        case OrderExecutedMessageType:
+            assert(messageLength == MessageLength<OrderExecutedMessageType>);
+            break;
+        case OrderExecutedWithPriceMessageType:
+            assert(messageLength == MessageLength<OrderExecutedWithPriceMessageType>);
+            break;
+        case OrderCancelMessageType:
+            assert(messageLength == MessageLength<OrderCancelMessageType>);
+            break;
+        case OrderDeleteMessageType:
+            assert(messageLength == MessageLength<OrderDeleteMessageType>);
+            break;
+        case OrderReplaceMessageType:
+            assert(messageLength == MessageLength<OrderReplaceMessageType>);
+            break;
+        case TradeMessageType:
+            assert(messageLength == MessageLength<TradeMessageType>);
+            break;
+        case CrossTradeMessageType:
+            assert(messageLength == MessageLength<CrossTradeMessageType>);
+            break;
+        case BrokenTradeMessageType:
+            assert(messageLength == MessageLength<BrokenTradeMessageType>);
+            break;
+        case NOIIMessageType:
+            assert(messageLength == MessageLength<NOIIMessageType>);
+            break;
+        case RetailInterestMessageType:
+            assert(messageLength == MessageLength<RetailInterestMessageType>);
+            break;
+        case DirectListingWithCapitalRaisePriceDiscoveryMessageType:
+            assert(messageLength == MessageLength<DirectListingWithCapitalRaisePriceDiscoveryMessageType>);
+            break;
+        default:
+            assert(false);
+            break;
+    };
+#endif
 
     char const *out = _buffer;
     _buffer += (messageHeaderLength + messageLength);

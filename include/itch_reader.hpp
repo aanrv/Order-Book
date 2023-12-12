@@ -7,31 +7,6 @@
 
 namespace ITCH {
 
-template<typename MessageType> constexpr uint16_t MessageLength                 = -1;
-template <> constexpr uint16_t MessageLength<SystemEventMessage>                = 12;
-template <> constexpr uint16_t MessageLength<StockDirectoryMessage>             = 39;
-template <> constexpr uint16_t MessageLength<StockTradingActionMessage>         = 25;
-template <> constexpr uint16_t MessageLength<RegSHORestrictionMessage>          = 20;
-template <> constexpr uint16_t MessageLength<MarketParticipantPositionMessage>  = 26;
-template <> constexpr uint16_t MessageLength<MWCBDeclineLevelMessage>           = 35;
-template <> constexpr uint16_t MessageLength<MWCBStatusMessage>                 = 12;
-template <> constexpr uint16_t MessageLength<IPOQuotingPeriodUpdateMessage>     = 28;
-template <> constexpr uint16_t MessageLength<LULDAuctionCollarMessage>          = 35;
-template <> constexpr uint16_t MessageLength<OperationalHaltMessage>            = 21;
-template <> constexpr uint16_t MessageLength<AddOrderMessage>                   = 36;
-template <> constexpr uint16_t MessageLength<AddOrderMPIDAttributionMessage>    = 40;
-template <> constexpr uint16_t MessageLength<OrderExecutedMessage>              = 31;
-template <> constexpr uint16_t MessageLength<OrderExecutedWithPriceMessage>     = 36;
-template <> constexpr uint16_t MessageLength<OrderCancelMessage>                = 23;
-template <> constexpr uint16_t MessageLength<OrderDeleteMessage>                = 19;
-template <> constexpr uint16_t MessageLength<OrderReplaceMessage>               = 35;
-template <> constexpr uint16_t MessageLength<TradeMessage>                      = 44;
-template <> constexpr uint16_t MessageLength<CrossTradeMessage>                 = 40;
-template <> constexpr uint16_t MessageLength<BrokenTradeMessage>                = 19;
-template <> constexpr uint16_t MessageLength<NOIIMessage>                       = 50;
-template <> constexpr uint16_t MessageLength<RetailInterestMessage>             = 20;
-template <> constexpr uint16_t MessageLength<DirectListingWithCapitalRaisePriceDiscoveryMessage> = 48;
-
 // Reads Nasdaq BinaryFILE and retrieves message data segments
 class Reader {
 public:
