@@ -10,8 +10,10 @@
 
 using std::cout; using std::endl;
 
-int main() {
-    ITCH::Reader reader("spec/12302019.NASDAQ_ITCH50", 16384);
+int main(int argc, char** argv) {
+    if (argc < 2) { std::cout << "Usage: " << argv[0] << " itch_filename" << std::endl; return EXIT_FAILURE; }
+    std::cout << "Processing " << argv[1] << std::endl;
+    ITCH::Reader reader(argv[1], 16384);
 
 #if BENCH
     using std::chrono::high_resolution_clock;
