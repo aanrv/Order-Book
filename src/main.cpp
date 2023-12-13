@@ -2,14 +2,12 @@
 #include "include/itch_reader.hpp"
 #include <iostream>
 
-#define LOG     true
+#define LOG     false
 #define BENCH   true
 
 #if BENCH
 #include <chrono>
 #endif
-
-using std::cout; using std::endl;
 
 int main(int argc, char** argv) {
     if (argc < 2) { std::cout << "Usage: " << argv[0] << " itch_filename" << std::endl; return EXIT_FAILURE; }
@@ -140,17 +138,17 @@ int main(int argc, char** argv) {
         };
     }
 
-    cout << dummytype << endl;
-    cout << "AddOrder " << countA << endl;
-    cout << "AddOrderMPID " << countB << endl;
-    cout << "OrderExc " << countC << endl;
-    cout << "OrderExcPrc " << countD << endl;
-    cout << "OrderCnl " << countE << endl;
-    cout << "OrderDlt " << countF << endl;
-    cout << "OrderRpl " << countG << endl;
-    cout << "TradeMsg " << countH << endl;
-    cout << "CrxTrade " << countI << endl;
-    cout << "BroknTrd " << countJ << endl;
+    std::cout << dummytype << std::endl;
+    std::cout << "AddOrder " << countA << std::endl;
+    std::cout << "AddOrderMPID " << countB << std::endl;
+    std::cout << "OrderExc " << countC << std::endl;
+    std::cout << "OrderExcPrc " << countD << std::endl;
+    std::cout << "OrderCnl " << countE << std::endl;
+    std::cout << "OrderDlt " << countF << std::endl;
+    std::cout << "OrderRpl " << countG << std::endl;
+    std::cout << "TradeMsg " << countH << std::endl;
+    std::cout << "CrxTrade " << countI << std::endl;
+    std::cout << "BroknTrd " << countJ << std::endl;
 
 #if BENCH
     auto t2 = high_resolution_clock::now();
