@@ -1,7 +1,7 @@
 #ifndef ORDER_BOOK_ITCH_READER_HPP
 #define ORDER_BOOK_ITCH_READER_HPP
 
-#include "include/itch_common.hpp"
+#include "itch_common.hpp"
 #include <cstdint>
 #include <cstddef>
 

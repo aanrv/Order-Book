@@ -1,5 +1,5 @@
-#include "include/itch_reader.hpp"
-#include "include/itch_common.hpp"
+#include "itch_reader.hpp"
+#include "itch_common.hpp"
 #include <cstring>                  // memcpy
 #include <fcntl.h>                  // open
 #include <unistd.h>                 // read

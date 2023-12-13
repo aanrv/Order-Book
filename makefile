@@ -2,7 +2,7 @@ CC		= g++
 CPPVER	= c++20
 SRC		= src
 FLAGS	= -Wall -Wextra -Werror
-INC		= $(PWD)
+INC		= $(PWD)/include
 PROF	= -O0 -pg
 
 all: order-book
