@@ -22,6 +22,8 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         // spec says ref num is day-unique
         // but file has a duplicate
         // consider erroneous for now
+        cerr << "--- duplicate order with reference number ---\n";
+        cerr << msg << "\n";
         return false;
     }
     auto orderArgs = std::make_tuple(
