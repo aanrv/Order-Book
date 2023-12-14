@@ -35,9 +35,9 @@ struct Level {
 class OrderBook {
 public:
     bool addOrder(ITCH::AddOrderMessage const & msg);  // add to o1 orders map, get level from o1 levels map and append
-    void deleteOrder(uint64_t orderReferenceNumber);    // get order from id map, set prev=next, delete from map
-    void cancelOrder(uint64_t orderReferenceNumber, uint32_t shares); // get orde from id map, sub shares
-    void replaceOrder(uint64_t oldOrderReferenceNumber, const Order& newOrder); // delete, add
+    bool deleteOrder(uint64_t orderReferenceNumber);    // get order from id map, set prev=next, delete from map
+    bool cancelOrder(uint64_t orderReferenceNumber, uint32_t shares); // get orde from id map, sub shares
+    bool replaceOrder(uint64_t oldOrderReferenceNumber, const Order& newOrder); // delete, add
 
     uint32_t getLimitVolume(uint32_t limitprice) const; // keep track Level obj
     Order const * getBestBid() const;   // largest map
@@ -59,5 +59,18 @@ private:
     boost::object_pool<Order> ordersmem;
     boost::object_pool<Level> levelsmem;
 };
+
+template <typename OStream>
+inline OStream& operator<<(OStream& os, const Order& o) {
+    os <<
+        "referenceNumer " << o.referenceNumber <<
+        " stockLocate " << o.stockLocate <<
+        " timestamp " << o.timestamp <<
+        " side " << o.side <<
+        " shares " << o.shares <<
+        " price " << o.price <<
+        " next " << o.next->price <<
+        " prev " << o.prev->price;
+}
 
 #endif // ORDER_BOOK_ORDER_BOOK_HPP
