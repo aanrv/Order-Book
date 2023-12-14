@@ -314,7 +314,8 @@ struct DirectListingWithCapitalRaisePriceDiscoveryMessage {
 
 } // namespace ITCH
 
-inline std::ostream& operator<<(std::ostream& os, ITCH::AddOrderMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::AddOrderMessage m) {
     os <<
         "type " << m.messageType <<
         " stock locate " << m.stockLocate <<
@@ -325,7 +326,8 @@ inline std::ostream& operator<<(std::ostream& os, ITCH::AddOrderMessage m) {
         " price " << m.price;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, ITCH::AddOrderMPIDAttributionMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::AddOrderMPIDAttributionMessage m) {
     os <<
         "type " << m.messageType <<
         " stock locate " << m.stockLocate <<
@@ -336,7 +338,8 @@ inline std::ostream& operator<<(std::ostream& os, ITCH::AddOrderMPIDAttributionM
         " price " << m.price;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, ITCH::OrderExecutedMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::OrderExecutedMessage m) {
     os <<
         "type " << m.messageType <<
         " stock locate " << m.stockLocate <<
@@ -345,7 +348,8 @@ inline std::ostream& operator<<(std::ostream& os, ITCH::OrderExecutedMessage m) 
         " exec shares " << m.executedShares;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, ITCH::OrderExecutedWithPriceMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::OrderExecutedWithPriceMessage m) {
     os <<
         "type " << m.messageType <<
         " stock locate " << m.stockLocate <<
@@ -355,7 +359,8 @@ inline std::ostream& operator<<(std::ostream& os, ITCH::OrderExecutedWithPriceMe
         " exec price " << m.executionPrice;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, ITCH::OrderCancelMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::OrderCancelMessage m) {
     os <<
         "type " << m.messageType <<
         " stock locate " << m.stockLocate <<
@@ -364,7 +369,8 @@ inline std::ostream& operator<<(std::ostream& os, ITCH::OrderCancelMessage m) {
         " cancelled shares " << m.cancelledShares;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, ITCH::OrderDeleteMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::OrderDeleteMessage m) {
     os <<
         "type " << m.messageType <<
         " stock locate " << m.stockLocate <<
@@ -372,7 +378,8 @@ inline std::ostream& operator<<(std::ostream& os, ITCH::OrderDeleteMessage m) {
         " order reference number " << m.orderReferenceNumber;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, ITCH::OrderReplaceMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::OrderReplaceMessage m) {
     os <<
         "type " << m.messageType <<
         " stock locate " << m.stockLocate <<
@@ -383,7 +390,8 @@ inline std::ostream& operator<<(std::ostream& os, ITCH::OrderReplaceMessage m) {
         " price " << m.price;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, ITCH::TradeMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::TradeMessage m) {
     os <<
         "type " << m.messageType <<
         " stock locate " << m.stockLocate <<
@@ -394,7 +402,8 @@ inline std::ostream& operator<<(std::ostream& os, ITCH::TradeMessage m) {
         " price " << m.price;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, ITCH::CrossTradeMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::CrossTradeMessage m) {
     os <<
         " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
@@ -404,7 +413,8 @@ inline std::ostream& operator<<(std::ostream& os, ITCH::CrossTradeMessage m) {
         " cross price " << m.crossPrice;
     return os;
 }
-inline std::ostream& operator<<(std::ostream& os, ITCH::BrokenTradeMessage m) {
+template <typename OStream>
+inline OStream& operator<<(OStream& os, ITCH::BrokenTradeMessage m) {
     os <<
         "type " << m.messageType <<
         " stock locate " << m.stockLocate <<
