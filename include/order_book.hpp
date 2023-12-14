@@ -80,7 +80,7 @@ inline OStream& operator<<(OStream& os, Level const & l) {
     os << "Level: " << &l << std::endl;
     os << "first: " << l.first << ", last: " << l.last << std::endl;
     Order const * it = l.first;
-    std::string prefix = "";
+    std::string prefix = ">";
     while (it) {
         os << prefix << it << ": " << *it << std::endl;
         prefix += ">";
