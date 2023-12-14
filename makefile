@@ -10,8 +10,8 @@ all: order-book
 profile: FLAGS += $(PROF)
 profile: all
 
-order-book: order_book.o main.o itch_reader.o
-	$(CC) -std=$(CPPVER) $(FLAGS) $(SRC)/itch_reader.o $(SRC)/main.o -o order-book
+order-book: itch_reader.o order_book.o main.o
+	$(CC) -std=$(CPPVER) $(FLAGS) $(SRC)/itch_reader.o $(SRC)/order_book.o $(SRC)/main.o -o order-book
 
 main.o:	$(SRC)/main.cpp
 	$(CC) -std=$(CPPVER) -c -I$(INC) $(FLAGS) $(SRC)/main.cpp -o $(SRC)/main.o

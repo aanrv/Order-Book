@@ -1,5 +1,6 @@
 #include "itch_common.hpp"
 #include "itch_reader.hpp"
+#include "order_book.hpp"
 #include <iostream>
 
 #define LOG     false
@@ -14,14 +15,7 @@ int main(int argc, char** argv) {
     std::cout << "Processing " << argv[1] << std::endl;
     ITCH::Reader reader(argv[1], 16384);
 
-#if BENCH
-    using std::chrono::high_resolution_clock;
-    using std::chrono::duration_cast;
-    using std::chrono::duration;
-    using std::chrono::nanoseconds;
-    long long messageCount = 0;
-    auto t1 = high_resolution_clock::now();
-#endif
+    OrderBook allSym;
 
     char const * messageData;
     char dummytype;
@@ -35,6 +29,15 @@ int main(int argc, char** argv) {
     unsigned long countH = 0;
     unsigned long countI = 0;
     unsigned long countJ = 0;
+
+#if BENCH
+    using std::chrono::high_resolution_clock;
+    using std::chrono::duration_cast;
+    using std::chrono::duration;
+    using std::chrono::nanoseconds;
+    long long messageCount = 0;
+    auto t1 = high_resolution_clock::now();
+#endif
     while((messageData = reader.nextMessage())) {
 #if BENCH
         ++messageCount;
@@ -44,6 +47,7 @@ int main(int argc, char** argv) {
         switch (messageType) {
             [[likely]] case ITCH::AddOrderMessageType: {
                 ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);
+                allSym.addOrder(m);
                 dummytype = m.messageType;
                 ++countA;
 #if LOG
