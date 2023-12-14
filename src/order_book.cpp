@@ -17,6 +17,7 @@ Order::Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, 
     prev(std::get<7>(args))
 {}
 
+// TODO add levels to bids offers
 bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
     if(orders.contains(msg.orderReferenceNumber)) {
         // spec says ref num is day-unique
@@ -57,9 +58,10 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         }
     }
     // get level for price, add order to end, update num shares
+    assert(levels.count(newOrder->price));
     Level * const orderLevel = levels.at(newOrder->price);
     assert(orderLevel != nullptr);
-    if (orderLevel->price == 579100) cout << "BEFORE ADD " << newOrder << '\n' << *orderLevel << endl;
+    if (orderLevel->price == 1200000) cout << "BEFORE ADD " << newOrder << '\n' << *orderLevel << endl;
     if (!orderLevel->last) {
         if (orderLevel->first) {
             std::cerr << "ERROR" << std::endl;
@@ -75,18 +77,18 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         newOrder->prev = orderLevel->last;
         orderLevel->last = newOrder;
     }
-    if (orderLevel->price == 579100) cout << "AFTER ADD " << newOrder << '\n' << *orderLevel << endl;
+    if (orderLevel->price == 1200000) cout << "AFTER ADD " << newOrder << '\n' << *orderLevel << endl;
     return true;
 }
 
 bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // get order to delete
+    assert(orders.count(orderReferenceNumber));
     Order * const target = orders.at(orderReferenceNumber);
-    if (!target) throw std::runtime_error("deleteOrder: failed to find target " + std::to_string(orderReferenceNumber));
     // remove order from map
     if (!orders.erase(orderReferenceNumber)) throw std::runtime_error("deleteOrder: failed to erase order " + std::to_string(orderReferenceNumber));
 
-    if (target->price == 579100) cout << "BEFORE DELETE " << target << '\n' << *levels.at(target->price) << endl;
+    if (target->price == 1200000) cout << "BEFORE DELETE " << target << '\n' << *levels.at(target->price) << endl;
     // remove order from list, connect remaining nodes
     if (target->prev) {
         target->prev->next = target->next;
@@ -95,19 +97,18 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
         target->next->prev = target->prev;
     }
     // remove from level pointers if first/last
+    assert(levels.count(target->price));
     Level * const level = levels.at(target->price);
     if (!level) {
         cerr << "deleteOrder: failed to find level " << target->price << endl;
     }
     if (level->first == target) {
-        cout <<"assigning first to " << target->next << endl;
         level->first = target->next;
     }
     if (level->last == target) {
-        cout <<"assigning last to " << target->prev << endl;
         level->last = target->prev;
     }
-    if (level->price == 579100) cout << "AFTER DELETE " << orderReferenceNumber << '\n' << *levels.at(target->price) << endl;
+    if (level->price == 1200000) cout << "AFTER DELETE " << orderReferenceNumber << '\n' << *levels.at(target->price) << endl;
     // remove and destroy level if empty
     if (!level->first && !level->last) {
         if (!levels.erase(level->price)) {
