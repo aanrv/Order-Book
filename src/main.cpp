@@ -3,7 +3,7 @@
 #include "order_book.hpp"
 #include <iostream>
 
-#define LOG     false
+#define LOG     true
 #define BENCH   true
 
 #if BENCH
@@ -47,12 +47,12 @@ int main(int argc, char** argv) {
         switch (messageType) {
             [[likely]] case ITCH::AddOrderMessageType: {
                 ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);
-                allSym.addOrder(m);
                 dummytype = m.messageType;
                 ++countA;
 #if LOG
                 std::cout << m << std::endl;
 #endif
+                allSym.addOrder(m);
                 break;
             }
             case ITCH::AddOrderMPIDAttributionMessageType: {
@@ -98,6 +98,7 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
+                allSym.deleteOrder(m.orderReferenceNumber);
                 break;
             }
             [[likely]] case ITCH::OrderReplaceMessageType: {
