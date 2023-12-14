@@ -63,25 +63,26 @@ private:
 template <typename OStream>
 inline OStream& operator<<(OStream& os, Order const & o) {
     os <<
-        "referenceNumer " << o.referenceNumber <<
-        " stockLocate " << o.stockLocate <<
-        " timestamp " << o.timestamp <<
-        " side " << o.side <<
-        " shares " << o.shares <<
-        " price " << o.price <<
-        " next " << (o.next ? o.next->price : -1) <<
-        " prev " << (o.next ? o.prev->price : -1);
+        "Order: " << &o <<
+        "referenceNumer " << o.referenceNumber << std::flush <<
+        " stockLocate " << o.stockLocate << std::flush <<
+        " timestamp " << o.timestamp << std::flush <<
+        " side " << o.side << std::flush <<
+        " shares " << o.shares << std::flush <<
+        " price " << o.price << std::flush <<
+        " next " << (o.next ? o.next->price : 0) << std::flush <<
+        " prev " << (o.prev ? o.prev->price : 0) << std::flush;
     return os;
 }
 
 template <typename OStream>
 inline OStream& operator<<(OStream& os, Level const & l) {
-    os << "LEVEL" << '\n';
+    os << "Level: " << &l << std::endl;
     os << "first: " << l.first << ", last: " << l.last << std::endl;
     Order const * it = l.first;
     std::string prefix = "";
     while (it) {
-        os << prefix << *it << std::endl;
+        os << prefix << it << ": " << *it << std::endl;
         prefix += ">";
         it = it->next;
     }

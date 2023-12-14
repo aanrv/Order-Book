@@ -39,43 +39,84 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
     // construct Order in mempool
     // add Order* to unordered_map
     Order * const newOrder = ordersmem.construct(orderArgs);
-    if (!newOrder) { return false; }
-    //cout << "created order" << endl;
+    if (!newOrder) throw std::runtime_error("addOrder: failed to construct order " + std::to_string(msg.orderReferenceNumber));
     auto const & orderRes = orders.insert({newOrder->referenceNumber, newOrder});
-    if (!orderRes.second) { ordersmem.destroy(newOrder); return false; }
-    //cout << "inserted order" << endl;
+    if (!orderRes.second) throw std::runtime_error("addOrder: failed to insert order " + std::to_string(newOrder->referenceNumber));
 
-    // create level if needed
+    // create level if doesnt exist
     if (!levels.contains(newOrder->price)) {
         Level * const newLevel = levelsmem.construct(newOrder->price);
-        //cout << "created level" << endl;
+        if (!newLevel) throw std::runtime_error("addOrder: failed to construct level " + std::to_string(newOrder->price));
+        // insert into map
         auto const & levelRes = levels.insert({newOrder->price, newLevel});
         if (!levelRes.second) {
-            //cout << "destroying level res" << endl;
             ordersmem.destroy(newOrder);
             levelsmem.destroy(newLevel);
             orders.erase(orderRes.first);
-            return false;
+            throw std::runtime_error("addOrder: failed to insert level " + std::to_string(newOrder->price));
         }
-        //cout << "inserted level" << endl;
     }
     // get level for price, add order to end, update num shares
     Level * const orderLevel = levels.at(newOrder->price);
-    // if level is empty, insert is both first and last
+    assert(orderLevel != nullptr);
     if (!orderLevel->last) {
-        assert(!orderLevel->first);
+        if (orderLevel->first) {
+            std::cout << *orderLevel << std::endl;
+            throw std::runtime_error("addOrder: non empty level with null last");
+        }
+        // if level is empty, insert is both first and last
         orderLevel->first = newOrder;
         orderLevel->last = newOrder;
     } else {
+        // otherwise append and update last
         orderLevel->last->next = newOrder;
+        orderLevel->last = newOrder;
     }
-//    cout << "created order " << newOrder->referenceNumber << " at level " << orderLevel->price << endl;
+    return true;
+}
+
+bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
+    // get order to delete
+    Order * const target = orders.at(orderReferenceNumber);
+    if (!target) {
+        cerr << "deleteOrder: failed to find order " << orderReferenceNumber << endl;
+        return false;
+    }
+    // remove order from map
+    if (!orders.erase(orderReferenceNumber)) {
+        cerr << "deleteOrder: failed to erase order " << orderReferenceNumber << endl;
+        return false;
+    }
+    // remove order from list, connect remaining nodes
+    if (target->prev) {
+        target->prev->next = target->next;
+    }
+    if (target->next) {
+        target->next->prev = target->prev;
+    }
+    // remove from level pointers if first/last
+    Level * const level = levels.at(target->price);
+    if (!level) {
+        cerr << "deleteOrder: failed to find level " << target->price << endl;
+    }
+    if (level->first == target) {
+        level->first = target->next;
+    }
+    if (level->last == target) {
+        level->last = target->prev;
+    }
+
+    // remove and destroy level if empty
+    if (!level->first && !level->last) {
+        if (!levels.erase(level->price)) {
+            cerr << "deleteOrder: failed to erase level for destroy " << level->price << endl;
+        }
+        levelsmem.destroy(level);
+    }
+    ordersmem.destroy(target);
     return true;
 }
 /*
-void OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
-
-}
 void OrderBook::cancelOrder(uint64_t orderReferenceNumber, uint32_t shares) {
 
 }
