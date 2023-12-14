@@ -61,7 +61,7 @@ private:
 };
 
 template <typename OStream>
-inline OStream& operator<<(OStream& os, const Order& o) {
+inline OStream& operator<<(OStream& os, Order const & o) {
     os <<
         "referenceNumer " << o.referenceNumber <<
         " stockLocate " << o.stockLocate <<
@@ -69,8 +69,23 @@ inline OStream& operator<<(OStream& os, const Order& o) {
         " side " << o.side <<
         " shares " << o.shares <<
         " price " << o.price <<
-        " next " << o.next->price <<
-        " prev " << o.prev->price;
+        " next " << (o.next ? o.next->price : -1) <<
+        " prev " << (o.next ? o.prev->price : -1);
+    return os;
+}
+
+template <typename OStream>
+inline OStream& operator<<(OStream& os, Level const & l) {
+    os << "LEVEL" << '\n';
+    os << "first: " << l.first << ", last: " << l.last << std::endl;
+    Order const * it = l.first;
+    std::string prefix = "";
+    while (it) {
+        os << prefix << *it << std::endl;
+        prefix += ">";
+        it = it->next;
+    }
+    return os;
 }
 
 #endif // ORDER_BOOK_ORDER_BOOK_HPP
