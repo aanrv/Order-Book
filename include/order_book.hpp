@@ -64,14 +64,14 @@ template <typename OStream>
 inline OStream& operator<<(OStream& os, Order const & o) {
     os <<
         "Order: " << &o <<
-        "referenceNumer " << o.referenceNumber << std::flush <<
-        " stockLocate " << o.stockLocate << std::flush <<
-        " timestamp " << o.timestamp << std::flush <<
-        " side " << o.side << std::flush <<
-        " shares " << o.shares << std::flush <<
-        " price " << o.price << std::flush <<
-        " next " << (o.next ? o.next->price : 0) << std::flush <<
-        " prev " << (o.prev ? o.prev->price : 0) << std::flush;
+        " referenceNumer " << o.referenceNumber <<
+        " stockLocate " << o.stockLocate <<
+        " timestamp " << o.timestamp <<
+        " side " << o.side <<
+        " shares " << o.shares <<
+        " price " << o.price <<
+        " prev " << o.prev <<
+        " next " << o.next;
     return os;
 }
 
