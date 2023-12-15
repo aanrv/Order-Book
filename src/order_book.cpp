@@ -6,6 +6,13 @@
 #include <iostream>
 using namespace std;
 
+Level::Level(uint32_t _price) :
+    price(_price),
+    limitVolume(0),
+    first(nullptr),
+    last(nullptr)
+{}
+
 Order::Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, Order*, Order*> args) :
     referenceNumber(std::get<0>(args)),
     stockLocate(std::get<1>(args)),
@@ -13,8 +20,8 @@ Order::Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, 
     side(std::get<3>(args)),
     shares(std::get<4>(args)),
     price(std::get<5>(args)),
-    next(std::get<6>(args)),
-    prev(std::get<7>(args))
+    prev(std::get<6>(args)),
+    next(std::get<7>(args))
 {}
 
 // TODO add levels to bids offers
@@ -61,7 +68,6 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
     assert(levels.count(newOrder->price));
     Level * const orderLevel = levels.at(newOrder->price);
     assert(orderLevel != nullptr);
-    if (orderLevel->price == 1200000) cout << "BEFORE ADD " << newOrder << '\n' << *orderLevel << endl;
     if (!orderLevel->last) {
         if (orderLevel->first) {
             std::cerr << "ERR" << std::endl;
@@ -77,7 +83,6 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         newOrder->prev = orderLevel->last;
         orderLevel->last = newOrder;
     }
-    if (orderLevel->price == 1200000) cout << "AFTER ADD " << newOrder << '\n' << *orderLevel << endl;
     return true;
 }
 
@@ -91,7 +96,6 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // remove order from map
     if (!orders.erase(orderReferenceNumber)) throw std::runtime_error("deleteOrder: failed to erase order " + std::to_string(orderReferenceNumber));
 
-    if (target->price == 1200000) cout << "BEFORE DELETE " << target << '\n' << *levels.at(target->price) << endl;
     // remove order from list, connect remaining nodes
     if (target->prev) {
         target->prev->next = target->next;
@@ -111,8 +115,8 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     if (level->last == target) {
         level->last = target->prev;
     }
-    if (level->price == 1200000) cout << "AFTER DELETE " << orderReferenceNumber << '\n' << *levels.at(target->price) << endl;
     // remove and destroy level if empty
+    // consider not destroying when empty, more memory but better performance if more orders with same price come in
     if (!level->first && !level->last) {
         if (!levels.erase(level->price)) {
             cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << endl;
@@ -152,26 +156,4 @@ Order const * OrderBook::getBestAsk() const;
 uint32_t OrderBook::getLastExecutedPrice() const;
 uint32_t OrderBook::getLastExecutedSize() const;
 */
-
-Level::Level(uint32_t _price) :
-    price(_price),
-    limitVolume(0),
-    first(nullptr),
-    last(nullptr)
-{}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
