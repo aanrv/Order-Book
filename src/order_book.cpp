@@ -6,6 +6,8 @@
 #include <iostream>
 using namespace std;
 
+#define LOG true
+
 Level::Level(uint32_t _price) :
     price(_price),
     limitVolume(0),
@@ -30,8 +32,10 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         // spec says ref num is day-unique
         // but file has a duplicate
         // consider erroneous for now
+#if LOG
         cerr << "ERR addOrder: duplicate order with reference number ---\n";
         cerr << msg << "\n";
+#endif
         return false;
     }
     auto orderArgs = std::make_tuple(
@@ -70,8 +74,10 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
     assert(orderLevel != nullptr);
     if (!orderLevel->last) {
         if (orderLevel->first) {
+#if LOG
             std::cerr << "ERR" << std::endl;
             std::cerr << *orderLevel << std::endl;
+#endif
             throw std::runtime_error("addOrder: non empty level with null last");
         }
         // if level is empty, insert is both first and last
@@ -89,7 +95,9 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
 bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // get order to delete
     if (!orders.count(orderReferenceNumber)) {
+#if LOG
         std::cerr << "ERR Order: " << orderReferenceNumber << " not found for deletion" << std::endl;
+#endif
         return false;
     }
     Order * const target = orders.at(orderReferenceNumber);
@@ -106,9 +114,11 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // remove from level pointers if first/last
     assert(levels.count(target->price));
     Level * const level = levels.at(target->price);
+#if LOG
     if (!level) {
         cerr << "ERR deleteOrder: failed to find level " << target->price << endl;
     }
+#endif
     if (level->first == target) {
         level->first = target->next;
     }
@@ -118,9 +128,11 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // remove and destroy level if empty
     // consider not destroying when empty, more memory but better performance if more orders with same price come in
     if (!level->first && !level->last) {
+#if LOG
         if (!levels.erase(level->price)) {
             cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << endl;
         }
+#endif
         levelsmem.destroy(level);
     }
     ordersmem.destroy(target);
@@ -131,7 +143,9 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
 //}
 bool OrderBook::replaceOrder(ITCH::OrderReplaceMessage const & msg) {
     if (!orders.count(msg.originalOrderReferenceNumber)) {
+#if LOG
         cerr << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order" << endl;
+#endif
         return false;
     }
     Order const * oldOrder = orders.at(msg.originalOrderReferenceNumber);
