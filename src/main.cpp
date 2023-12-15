@@ -4,8 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 
-#define LOG     false
-#define BENCH   true
+#define BENCH true
 
 #if BENCH
 #include <chrono>
@@ -34,79 +33,49 @@ int main(int argc, char** argv) {
         switch (messageType) {
             [[likely]] case ITCH::AddOrderMessageType: {
                 ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 books[m.stockLocate].handleAddOrderMessage(m);
                 break;
             }
             case ITCH::AddOrderMPIDAttributionMessageType: {
                 ITCH::AddOrderMPIDAttributionMessage m = ITCH::Parser::createAddOrderMPIDAttributionMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 books[m.stockLocate].handleAddOrderMPIDAttributionMessage(m);
                 break;
             }
             [[likely]] case ITCH::OrderExecutedMessageType: {
                 ITCH::OrderExecutedMessage m = ITCH::Parser::createOrderExecutedMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 books[m.stockLocate].handleOrderExecutedMessage(m);
                 break;
             }
             case ITCH::OrderExecutedWithPriceMessageType: {
                 ITCH::OrderExecutedWithPriceMessage m = ITCH::Parser::createOrderExecutedWithPriceMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 books[m.stockLocate].handleOrderExecutedWithPriceMessage(m);
                 break;
             }
             case ITCH::OrderCancelMessageType: {
                 ITCH::OrderCancelMessage m = ITCH::Parser::createOrderCancelMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 books[m.stockLocate].handleOrderCancelMessage(m);
                 break;
             }
             [[likely]] case ITCH::OrderDeleteMessageType: {
                 ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 books[m.stockLocate].handleOrderDeleteMessage(m);
                 break;
             }
             [[likely]] case ITCH::OrderReplaceMessageType: {
                 ITCH::OrderReplaceMessage m = ITCH::Parser::createOrderReplaceMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 books[m.stockLocate].handleOrderReplaceMessage(m);
                 break;
             }
 /*            case ITCH::TradeMessageType: {
                 ITCH::TradeMessage m = ITCH::Parser::createTradeMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 break;
             }
             [[unlikely]] case ITCH::CrossTradeMessageType: {
                 ITCH::CrossTradeMessage m = ITCH::Parser::createCrossTradeMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 break;
             }
             [[unlikely]] case ITCH::BrokenTradeMessageType: {
                 ITCH::BrokenTradeMessage m = ITCH::Parser::createBrokenTradeMessage(messageData);
-#if LOG
-                std::cout << m << std::endl;
-#endif
                 break;
             }*/
             default: {

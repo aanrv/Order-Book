@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 
-#define LOG false
+#define LOG true
 
 Level::Level(uint32_t _price) :
     price(_price),
@@ -27,6 +27,10 @@ Order::Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, 
 {}
 
 void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
+#if LOG
+    std::cout << msg << std::endl;
+#endif
+
     if(orders.contains(msg.orderReferenceNumber)) {
         // spec says ref num is day-unique
         // but file has a duplicate
@@ -58,6 +62,10 @@ void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
 }
 
 void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributionMessage const & msg) {
+#if LOG
+    std::cout << msg << std::endl;
+#endif
+
     if(orders.contains(msg.orderReferenceNumber)) {
         // spec says ref num is day-unique
         // but file has a duplicate
@@ -89,20 +97,35 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
 }
 
 void OrderBook::handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg) {
+#if LOG
+    std::cout << msg << std::endl;
+#endif
     (void)msg;
 }
 void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const & msg) {
+#if LOG
+    std::cout << msg << std::endl;
+#endif
     (void)msg;
 }
 void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
+#if LOG
+    std::cout << msg << std::endl;
+#endif
     (void)msg;
 }
 
 void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
+#if LOG
+    std::cout << msg << std::endl;
+#endif
     deleteOrder(msg.orderReferenceNumber);
 }
 
 void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg) {
+#if LOG
+    std::cout << msg << std::endl;
+#endif
     if (!orders.count(msg.originalOrderReferenceNumber)) {
 #if LOG
         cerr << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order" << endl;
