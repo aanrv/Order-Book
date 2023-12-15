@@ -62,10 +62,31 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         // insert into map
         auto const & levelRes = levels.insert({newOrder->price, newLevel});
         if (!levelRes.second) {
+            orders.erase(newOrder->referenceNumber);
             ordersmem.destroy(newOrder);
             levelsmem.destroy(newLevel);
-            orders.erase(orderRes.first);
             throw std::runtime_error("addOrder: failed to insert level " + std::to_string(newOrder->price));
+        }
+        // insert level into bids/offers map
+        if(newOrder->side != ITCH::Side::BUY && newOrder->side != ITCH::Side::SELL) {
+            cerr << *newOrder << endl;
+            cerr << "invalid side" << endl;
+            orders.erase(orderRes.first);
+            levels.erase(newOrder->price);
+            ordersmem.destroy(newOrder);
+            levelsmem.destroy(newLevel);
+            return false;
+        }
+        std::map<uint32_t, Level*> & bidsOrOffers = newOrder->side == ITCH::Side::BUY
+            ? bids
+            : offers;
+        auto const & sideRes = bidsOrOffers.insert({newLevel->price, newLevel});
+        if (!sideRes.second) {
+            orders.erase(orderRes.first);
+            levels.erase(newOrder->price);
+            ordersmem.destroy(newOrder);
+            levelsmem.destroy(newLevel);
+            throw std::runtime_error("addOrder: failed to insert level for price " + std::to_string(newOrder->price));
         }
     }
     // get level for price, add order to end, update num shares
@@ -128,9 +149,16 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // remove and destroy level if empty
     // consider not destroying when empty, more memory but better performance if more orders with same price come in
     if (!level->first && !level->last) {
+        cout << "deleting level " << level->price << " side " << target->side << endl;
 #if LOG
         if (!levels.erase(level->price)) {
             cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << endl;
+        }
+        std::map<uint32_t, Level*> & bidsOrOffers = target->side == ITCH::Side::BUY
+            ? bids
+            : offers;
+        if (!bidsOrOffers.erase(level->price)) {
+            throw std::runtime_error("erased from levels but not from bid/ask");
         }
 #endif
         levelsmem.destroy(level);
