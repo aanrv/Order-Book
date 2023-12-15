@@ -108,6 +108,7 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
+                allSym.replaceOrder(m);
                 break;
             }
             case ITCH::TradeMessageType: {

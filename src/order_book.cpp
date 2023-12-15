@@ -23,7 +23,7 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         // spec says ref num is day-unique
         // but file has a duplicate
         // consider erroneous for now
-        cerr << "--- duplicate order with reference number ---\n";
+        cerr << "ERR addOrder: duplicate order with reference number ---\n";
         cerr << msg << "\n";
         return false;
     }
@@ -64,7 +64,7 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
     if (orderLevel->price == 1200000) cout << "BEFORE ADD " << newOrder << '\n' << *orderLevel << endl;
     if (!orderLevel->last) {
         if (orderLevel->first) {
-            std::cerr << "ERROR" << std::endl;
+            std::cerr << "ERR" << std::endl;
             std::cerr << *orderLevel << std::endl;
             throw std::runtime_error("addOrder: non empty level with null last");
         }
@@ -83,7 +83,10 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
 
 bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // get order to delete
-    assert(orders.count(orderReferenceNumber));
+    if (!orders.count(orderReferenceNumber)) {
+        std::cerr << "ERR Order: " << orderReferenceNumber << " not found for deletion" << std::endl;
+        return false;
+    }
     Order * const target = orders.at(orderReferenceNumber);
     // remove order from map
     if (!orders.erase(orderReferenceNumber)) throw std::runtime_error("deleteOrder: failed to erase order " + std::to_string(orderReferenceNumber));
@@ -100,7 +103,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     assert(levels.count(target->price));
     Level * const level = levels.at(target->price);
     if (!level) {
-        cerr << "deleteOrder: failed to find level " << target->price << endl;
+        cerr << "ERR deleteOrder: failed to find level " << target->price << endl;
     }
     if (level->first == target) {
         level->first = target->next;
@@ -112,21 +115,35 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // remove and destroy level if empty
     if (!level->first && !level->last) {
         if (!levels.erase(level->price)) {
-            cerr << "deleteOrder: failed to erase level for destroy " << level->price << endl;
+            cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << endl;
         }
         levelsmem.destroy(level);
     }
     ordersmem.destroy(target);
     return true;
 }
+//bool OrderBook::cancelOrder(uint64_t orderReferenceNumber, uint32_t shares) {
+
+//}
+bool OrderBook::replaceOrder(ITCH::OrderReplaceMessage const & msg) {
+    if (!orders.count(msg.originalOrderReferenceNumber)) {
+        cerr << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order" << endl;
+        return false;
+    }
+    Order const * oldOrder = orders.at(msg.originalOrderReferenceNumber);
+    ITCH::AddOrderMessage addNewOrderMessage {
+        ITCH::AddOrderMessageType,
+        oldOrder->stockLocate,
+        msg.timestamp,
+        msg.newOrderReferenceNumber,
+        oldOrder->side,
+        msg.shares,
+        msg.price
+    };
+    return deleteOrder(msg.originalOrderReferenceNumber) && addOrder(addNewOrderMessage);
+}
+
 /*
-void OrderBook::cancelOrder(uint64_t orderReferenceNumber, uint32_t shares) {
-
-}
-void OrderBook::replaceOrder(uint64_t oldOrderReferenceNumber, const Order& newOrder) {
-
-}
-
 uint32_t OrderBook::getLimitVolume(uint32_t price) const {
 
 }
