@@ -9,7 +9,7 @@
 
 #include <iostream>                 // todo remove
 
-#define LOG     false
+#define LOG     true
 #define ASSERT  true
 
 #if ASSERT
@@ -39,9 +39,6 @@ ITCH::Reader::~Reader() {
 }
 
 char const * ITCH::Reader::nextMessage() {
-#if LOG
-    static long long totalBytesRead;
-#endif
 #if ASSERT
     assert(_buffer < (buffer + bufferSize));
 #endif
@@ -180,6 +177,10 @@ char const * ITCH::Reader::nextMessage() {
     }
 
     return out;
+}
+
+long long ITCH::Reader::getTotalBytesRead() const {
+    return totalBytesRead;
 }
 
 ITCH::AddOrderMessage ITCH::Parser::createAddOrderMessage(char const * data) {

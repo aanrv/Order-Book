@@ -4,7 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 
-#define LOG     true
+#define LOG     false
 #define BENCH   true
 
 #if BENCH
@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
                 books[m.stockLocate].addOrder(m);
                 break;
             }
-            case ITCH::AddOrderMPIDAttributionMessageType: {
+/*            case ITCH::AddOrderMPIDAttributionMessageType: {
                 ITCH::AddOrderMPIDAttributionMessage m = ITCH::Parser::createAddOrderMPIDAttributionMessage(messageData);
 #if LOG
                 std::cout << m << std::endl;
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
                 std::cout << m << std::endl;
 #endif
                 break;
-            }
+            }*/
             [[likely]] case ITCH::OrderDeleteMessageType: {
                 ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
 #if LOG
@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
                 books[m.stockLocate].replaceOrder(m);
                 break;
             }
-            case ITCH::TradeMessageType: {
+/*            case ITCH::TradeMessageType: {
                 ITCH::TradeMessage m = ITCH::Parser::createTradeMessage(messageData);
 #if LOG
                 std::cout << m << std::endl;
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
                 std::cout << m << std::endl;
 #endif
                 break;
-            }
+            }*/
             default: {
                 break;
             }
@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
 #if BENCH
     auto t2 = high_resolution_clock::now();
     duration<double, std::nano> ms_double = t2 - t1;
-    std::cout << "processed " << messageCount << " messages in " << ms_double.count() << " nanoseconds" << std::endl;
+    std::cout << "processed " << messageCount << " messages (" << reader.getTotalBytesRead()  << " bytes) in " << ms_double.count() << " nanoseconds" << std::endl;
 #endif
 }
 

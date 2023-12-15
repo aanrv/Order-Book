@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 
-#define LOG true
+#define LOG false
 
 Level::Level(uint32_t _price) :
     price(_price),
@@ -149,18 +149,21 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // remove and destroy level if empty
     // consider not destroying when empty, more memory but better performance if more orders with same price come in
     if (!level->first && !level->last) {
-        cout << "deleting level " << level->price << " side " << target->side << endl;
-#if LOG
-        if (!levels.erase(level->price)) {
-            cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << endl;
-        }
         std::map<uint32_t, Level*> & bidsOrOffers = target->side == ITCH::Side::BUY
             ? bids
             : offers;
         if (!bidsOrOffers.erase(level->price)) {
+            cout << "------------" << endl;
+            cout << *target << endl;
+            cout << *level << endl;
             throw std::runtime_error("erased from levels but not from bid/ask");
         }
+#if LOG
+        cout << "deleting level " << level->price << " side " << target->side << endl;
 #endif
+        if (!levels.erase(level->price)) {
+            cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << endl;
+        }
         levelsmem.destroy(level);
     }
     ordersmem.destroy(target);

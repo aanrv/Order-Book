@@ -21,6 +21,7 @@ public:
     ~Reader();
 
     char const * nextMessage();
+    long long getTotalBytesRead() const;
 
 private:
     int const       fdItch;
@@ -28,6 +29,7 @@ private:
     char * const    buffer;
     char *          _buffer;
     size_t          validBytes;
+    long long       totalBytesRead;
 };
 
 namespace Parser {
