@@ -2,6 +2,7 @@
 #include "itch_reader.hpp"
 #include "order_book.hpp"
 #include <iostream>
+#include <unordered_map>
 
 #define LOG     true
 #define BENCH   true
@@ -13,10 +14,9 @@
 int main(int argc, char** argv) {
     if (argc < 2) { std::cout << "Usage: " << argv[0] << " itch_filename" << std::endl; return EXIT_FAILURE; }
     std::cout << "Processing " << argv[1] << std::endl;
+
     ITCH::Reader reader(argv[1], 16384);
-
-    OrderBook allSym;
-
+    std::unordered_map<uint16_t, OrderBook> books;
     char const * messageData;
 
 #if BENCH
@@ -27,10 +27,8 @@ int main(int argc, char** argv) {
     long long messageCount = 0;
     auto t1 = high_resolution_clock::now();
 #endif
+
     while((messageData = reader.nextMessage())) {
-#if BENCH
-        ++messageCount;
-#endif
         char messageType = messageData[ITCH::messageTypeIndex];
         messageData += ITCH::messageHeaderLength;
         switch (messageType) {
@@ -39,7 +37,7 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
-                allSym.addOrder(m);
+                books[m.stockLocate].addOrder(m);
                 break;
             }
             case ITCH::AddOrderMPIDAttributionMessageType: {
@@ -75,7 +73,7 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
-                allSym.deleteOrder(m.orderReferenceNumber);
+                books[m.stockLocate].deleteOrder(m.orderReferenceNumber);
                 break;
             }
             [[likely]] case ITCH::OrderReplaceMessageType: {
@@ -83,7 +81,7 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
-                allSym.replaceOrder(m);
+                books[m.stockLocate].replaceOrder(m);
                 break;
             }
             case ITCH::TradeMessageType: {
@@ -111,6 +109,9 @@ int main(int argc, char** argv) {
                 break;
             }
         };
+#if BENCH
+    ++messageCount;
+#endif
     }
 
 #if BENCH
