@@ -35,6 +35,31 @@ constexpr char NOIIMessageType                      = 'I';
 constexpr char RetailInterestMessageType            = 'N';
 constexpr char DirectListingWithCapitalRaisePriceDiscoveryMessageType = 'O';
 
+template<char MessageType> constexpr char * TypeTag = MessageType + "  ";
+template <> constexpr char const * TypeTag<SystemEventMessageType>               = "SYS";
+template <> constexpr char const * TypeTag<StockDirectoryMessageType>            = "DIR";
+template <> constexpr char const * TypeTag<StockTradingActionMessageType>        = "ACT";
+template <> constexpr char const * TypeTag<RegSHORestrictionMessageType>         = "REG";
+template <> constexpr char const * TypeTag<MarketParticipantPositionMessageType> = "POS";
+template <> constexpr char const * TypeTag<MWCBDeclineLevelMessageType>          = "DCL";
+template <> constexpr char const * TypeTag<MWCBStatusMessageType>                = "STS";
+template <> constexpr char const * TypeTag<IPOQuotingPeriodUpdateMessageType>    = "IPO";
+template <> constexpr char const * TypeTag<LULDAuctionCollarMessageType>         = "COL";
+template <> constexpr char const * TypeTag<OperationalHaltMessageType>           = "HLT";
+template <> constexpr char const * TypeTag<AddOrderMessageType>                  = "ADD";
+template <> constexpr char const * TypeTag<AddOrderMPIDAttributionMessageType>   = "ADM";
+template <> constexpr char const * TypeTag<OrderExecutedMessageType>             = "EXC";
+template <> constexpr char const * TypeTag<OrderExecutedWithPriceMessageType>    = "EXP";
+template <> constexpr char const * TypeTag<OrderCancelMessageType>               = "CNL";
+template <> constexpr char const * TypeTag<OrderDeleteMessageType>               = "DEL";
+template <> constexpr char const * TypeTag<OrderReplaceMessageType>              = "RPL";
+template <> constexpr char const * TypeTag<TradeMessageType>                     = "TRD";
+template <> constexpr char const * TypeTag<CrossTradeMessageType>                = "CRX";
+template <> constexpr char const * TypeTag<BrokenTradeMessageType>               = "BRK";
+template <> constexpr char const * TypeTag<NOIIMessageType>                      = "NOI";
+template <> constexpr char const * TypeTag<RetailInterestMessageType>            = "RTL";
+template <> constexpr char const * TypeTag<DirectListingWithCapitalRaisePriceDiscoveryMessageType> = "DSC";
+
 template<char MessageType> constexpr uint16_t MessageLength = -1;
 template <> constexpr uint16_t MessageLength<SystemEventMessageType>                = 12;
 template <> constexpr uint16_t MessageLength<StockDirectoryMessageType>             = 39;
@@ -317,7 +342,8 @@ struct DirectListingWithCapitalRaisePriceDiscoveryMessage {
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::AddOrderMessage const & m) {
     os <<
-        "type " << m.messageType <<
+        ITCH::TypeTag<ITCH::AddOrderMessageType> <<
+        " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp <<
         " order reference number " << m.orderReferenceNumber <<
@@ -329,7 +355,8 @@ inline OStream& operator<<(OStream& os, ITCH::AddOrderMessage const & m) {
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::AddOrderMPIDAttributionMessage const & m) {
     os <<
-        "type " << m.messageType <<
+        ITCH::TypeTag<ITCH::AddOrderMPIDAttributionMessageType> <<
+        " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp <<
         " order reference number " << m.orderReferenceNumber <<
@@ -341,7 +368,8 @@ inline OStream& operator<<(OStream& os, ITCH::AddOrderMPIDAttributionMessage con
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::OrderExecutedMessage const & m) {
     os <<
-        "type " << m.messageType <<
+        ITCH::TypeTag<ITCH::OrderExecutedMessageType> <<
+        " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp <<
         " order reference number " << m.orderReferenceNumber <<
@@ -351,7 +379,8 @@ inline OStream& operator<<(OStream& os, ITCH::OrderExecutedMessage const & m) {
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::OrderExecutedWithPriceMessage const & m) {
     os <<
-        "type " << m.messageType <<
+        ITCH::TypeTag<ITCH::OrderExecutedWithPriceMessageType> <<
+        " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp <<
         " order reference number " << m.orderReferenceNumber <<
@@ -362,7 +391,8 @@ inline OStream& operator<<(OStream& os, ITCH::OrderExecutedWithPriceMessage cons
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::OrderCancelMessage const & m) {
     os <<
-        "type " << m.messageType <<
+        ITCH::TypeTag<ITCH::OrderCancelMessageType> <<
+        " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp <<
         " order reference number " << m.orderReferenceNumber <<
@@ -372,7 +402,8 @@ inline OStream& operator<<(OStream& os, ITCH::OrderCancelMessage const & m) {
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::OrderDeleteMessage const & m) {
     os <<
-        "type " << m.messageType <<
+        ITCH::TypeTag<ITCH::OrderDeleteMessageType> <<
+        " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp <<
         " order reference number " << m.orderReferenceNumber;
@@ -381,7 +412,8 @@ inline OStream& operator<<(OStream& os, ITCH::OrderDeleteMessage const & m) {
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::OrderReplaceMessage const & m) {
     os <<
-        "type " << m.messageType <<
+        ITCH::TypeTag<ITCH::OrderReplaceMessageType> <<
+        " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp <<
         " orig order " << m.originalOrderReferenceNumber <<
@@ -393,7 +425,8 @@ inline OStream& operator<<(OStream& os, ITCH::OrderReplaceMessage const & m) {
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::TradeMessage const & m) {
     os <<
-        "type " << m.messageType <<
+        ITCH::TypeTag<ITCH::TradeMessageType> <<
+        " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp <<
         " order reference number " << m.orderReferenceNumber <<
@@ -405,6 +438,7 @@ inline OStream& operator<<(OStream& os, ITCH::TradeMessage const & m) {
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::CrossTradeMessage const & m) {
     os <<
+        ITCH::TypeTag<ITCH::CrossTradeMessageType> <<
         " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp <<
@@ -416,7 +450,8 @@ inline OStream& operator<<(OStream& os, ITCH::CrossTradeMessage const & m) {
 template <typename OStream>
 inline OStream& operator<<(OStream& os, ITCH::BrokenTradeMessage const & m) {
     os <<
-        "type " << m.messageType <<
+        ITCH::TypeTag<ITCH::BrokenTradeMessageType> <<
+        " type " << m.messageType <<
         " stock locate " << m.stockLocate <<
         " timestamp " << m.timestamp;
     return os;
