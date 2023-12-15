@@ -9,7 +9,7 @@
 
 #include <iostream>                 // todo remove
 
-#define LOG     true
+#define LOG     false
 #define ASSERT  true
 
 #if ASSERT
@@ -158,9 +158,9 @@ char const * ITCH::Reader::nextMessage() {
     char const *out = _buffer;
     _buffer += (messageHeaderLength + messageLength);
 
-#if LOG
     totalBytesRead += (messageHeaderLength + messageLength);
-//    std::cout << "msgtype " << *(out + 2) << " len " << messageLength << " totalbytesread " << totalBytesRead << " buffer remaining " << (buffer + bufferSize - _buffer) << '\n';
+#if LOG
+    std::cout << "msgtype " << *(out + 2) << " len " << messageLength << " totalbytesread " << totalBytesRead << " buffer remaining " << (buffer + bufferSize - _buffer) << '\n';
 #endif
 
 #if ASSERT
