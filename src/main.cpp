@@ -37,14 +37,15 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
-                books[m.stockLocate].addOrder(m);
+                books[m.stockLocate].handleAddOrderMessage(m);
                 break;
             }
-/*            case ITCH::AddOrderMPIDAttributionMessageType: {
+            case ITCH::AddOrderMPIDAttributionMessageType: {
                 ITCH::AddOrderMPIDAttributionMessage m = ITCH::Parser::createAddOrderMPIDAttributionMessage(messageData);
 #if LOG
                 std::cout << m << std::endl;
 #endif
+                books[m.stockLocate].handleAddOrderMPIDAttributionMessage(m);
                 break;
             }
             [[likely]] case ITCH::OrderExecutedMessageType: {
@@ -52,6 +53,7 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
+                books[m.stockLocate].handleOrderExecutedMessage(m);
                 break;
             }
             case ITCH::OrderExecutedWithPriceMessageType: {
@@ -59,6 +61,7 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
+                books[m.stockLocate].handleOrderExecutedWithPriceMessage(m);
                 break;
             }
             case ITCH::OrderCancelMessageType: {
@@ -66,14 +69,15 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
+                books[m.stockLocate].handleOrderCancelMessage(m);
                 break;
-            }*/
+            }
             [[likely]] case ITCH::OrderDeleteMessageType: {
                 ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
 #if LOG
                 std::cout << m << std::endl;
 #endif
-                books[m.stockLocate].deleteOrder(m.orderReferenceNumber);
+                books[m.stockLocate].handleOrderDeleteMessage(m);
                 break;
             }
             [[likely]] case ITCH::OrderReplaceMessageType: {
@@ -81,7 +85,7 @@ int main(int argc, char** argv) {
 #if LOG
                 std::cout << m << std::endl;
 #endif
-                books[m.stockLocate].replaceOrder(m);
+                books[m.stockLocate].handleOrderReplaceMessage(m);
                 break;
             }
 /*            case ITCH::TradeMessageType: {

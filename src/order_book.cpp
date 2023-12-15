@@ -26,8 +26,7 @@ Order::Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, 
     next(std::get<7>(args))
 {}
 
-// TODO add levels to bids offers
-bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
+void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
     if(orders.contains(msg.orderReferenceNumber)) {
         // spec says ref num is day-unique
         // but file has a duplicate
@@ -36,8 +35,9 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         cerr << "ERR addOrder: duplicate order with reference number ---\n";
         cerr << msg << "\n";
 #endif
-        return false;
+        return;
     }
+
     auto orderArgs = std::make_tuple(
         msg.orderReferenceNumber,
         msg.stockLocate,
@@ -52,6 +52,87 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
     // add Order* to unordered_map
     Order * const newOrder = ordersmem.construct(orderArgs);
     if (!newOrder) throw std::runtime_error("addOrder: failed to construct order " + std::to_string(msg.orderReferenceNumber));
+    if (!addOrder(newOrder)) {
+        ordersmem.destroy(newOrder);
+    }
+}
+
+void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributionMessage const & msg) {
+    if(orders.contains(msg.orderReferenceNumber)) {
+        // spec says ref num is day-unique
+        // but file has a duplicate
+        // consider erroneous for now
+#if LOG
+        cerr << "ERR addOrder: duplicate order with reference number ---\n";
+        cerr << msg << "\n";
+#endif
+        return;
+    }
+
+    auto orderArgs = std::make_tuple(
+        msg.orderReferenceNumber,
+        msg.stockLocate,
+        msg.timestamp,
+        msg.buySellIndicator,
+        msg.shares,
+        msg.price,
+        nullptr,
+        nullptr
+    );
+    // construct Order in mempool
+    // add Order* to unordered_map
+    Order * const newOrder = ordersmem.construct(orderArgs);
+    if (!newOrder) throw std::runtime_error("addOrder: failed to construct order " + std::to_string(msg.orderReferenceNumber));
+    if (!addOrder(newOrder)) {
+        ordersmem.destroy(newOrder);
+    }
+}
+
+void OrderBook::handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg) {
+    (void)msg;
+}
+void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const & msg) {
+    (void)msg;
+}
+void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
+    (void)msg;
+}
+
+void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
+    deleteOrder(msg.orderReferenceNumber);
+}
+
+void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg) {
+    if (!orders.count(msg.originalOrderReferenceNumber)) {
+#if LOG
+        cerr << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order" << endl;
+#endif
+        return;
+    }
+    Order const * oldOrder = orders.at(msg.originalOrderReferenceNumber);
+    auto orderArgs = std::make_tuple(
+        msg.newOrderReferenceNumber,
+        oldOrder->stockLocate,
+        msg.timestamp,
+        oldOrder->side,
+        msg.shares,
+        msg.price,
+        nullptr,
+        nullptr
+        );
+    Order * const newOrder = ordersmem.construct(orderArgs);
+    if (!newOrder) throw std::runtime_error("addOrder: failed to construct order " + std::to_string(msg.newOrderReferenceNumber));
+    if (!deleteOrder(msg.originalOrderReferenceNumber)) {
+        ordersmem.destroy(newOrder);
+    }
+    if (!addOrder(newOrder)) {
+        ordersmem.destroy(newOrder);
+    }
+}
+
+// TODO add levels to bids offers
+// TODO change throws to return false?
+bool OrderBook::addOrder(Order* newOrder) {
     auto const & orderRes = orders.insert({newOrder->referenceNumber, newOrder});
     if (!orderRes.second) throw std::runtime_error("addOrder: failed to insert order " + std::to_string(newOrder->referenceNumber));
 
@@ -63,7 +144,6 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         auto const & levelRes = levels.insert({newOrder->price, newLevel});
         if (!levelRes.second) {
             orders.erase(newOrder->referenceNumber);
-            ordersmem.destroy(newOrder);
             levelsmem.destroy(newLevel);
             throw std::runtime_error("addOrder: failed to insert level " + std::to_string(newOrder->price));
         }
@@ -73,7 +153,6 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
             cerr << "invalid side" << endl;
             orders.erase(orderRes.first);
             levels.erase(newOrder->price);
-            ordersmem.destroy(newOrder);
             levelsmem.destroy(newLevel);
             return false;
         }
@@ -84,7 +163,6 @@ bool OrderBook::addOrder(ITCH::AddOrderMessage const & msg) {
         if (!sideRes.second) {
             orders.erase(orderRes.first);
             levels.erase(newOrder->price);
-            ordersmem.destroy(newOrder);
             levelsmem.destroy(newLevel);
             throw std::runtime_error("addOrder: failed to insert level for price " + std::to_string(newOrder->price));
         }
@@ -169,33 +247,9 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     ordersmem.destroy(target);
     return true;
 }
-//bool OrderBook::cancelOrder(uint64_t orderReferenceNumber, uint32_t shares) {
-
-//}
-bool OrderBook::replaceOrder(ITCH::OrderReplaceMessage const & msg) {
-    if (!orders.count(msg.originalOrderReferenceNumber)) {
-#if LOG
-        cerr << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order" << endl;
-#endif
-        return false;
-    }
-    Order const * oldOrder = orders.at(msg.originalOrderReferenceNumber);
-    ITCH::AddOrderMessage addNewOrderMessage {
-        ITCH::AddOrderMessageType,
-        oldOrder->stockLocate,
-        msg.timestamp,
-        msg.newOrderReferenceNumber,
-        oldOrder->side,
-        msg.shares,
-        msg.price
-    };
-    return deleteOrder(msg.originalOrderReferenceNumber) && addOrder(addNewOrderMessage);
-}
 
 /*
-uint32_t OrderBook::getLimitVolume(uint32_t price) const {
-
-}
+uint32_t OrderBook::getLimitVolume(uint32_t price) const;
 Order const * OrderBook::getBestBid() const;
 Order const * OrderBook::getBestAsk() const;
 uint32_t OrderBook::getLastExecutedPrice() const;

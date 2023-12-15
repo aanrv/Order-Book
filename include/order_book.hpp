@@ -34,10 +34,29 @@ struct Level {
 // price-time LOB
 class OrderBook {
 public:
-    bool addOrder(ITCH::AddOrderMessage const & msg);  // add to o1 orders map, get level from o1 levels map and append
-    bool deleteOrder(uint64_t orderReferenceNumber);    // get order from id map, set prev=next, delete from map
-    bool cancelOrder(uint64_t orderReferenceNumber, uint32_t shares); // get orde from id map, sub shares
-    bool replaceOrder(ITCH::OrderReplaceMessage const & msg); // delete, add
+    void handleSystemEventMessage(ITCH::SystemEventMessage const & msg);
+    void handleStockDirectoryMessage(ITCH::StockDirectoryMessage const & msg);
+    void handleStockTradingActionMessage(ITCH::StockTradingActionMessage const & msg);
+    void handleRegSHORestrictionMessage(ITCH::RegSHORestrictionMessage const & msg);
+    void handleMarketParticipantPositionMessage(ITCH::MarketParticipantPositionMessage const & msg);
+    void handleMWCBDeclineLevelMessage(ITCH::MWCBDeclineLevelMessage const & msg);
+    void handleMWCBStatusMessage(ITCH::MWCBStatusMessage const & msg);
+    void handleIPOQuotingPeriodUpdateMessage(ITCH::IPOQuotingPeriodUpdateMessage const & msg);
+    void handleLULDAuctionCollarMessage(ITCH::LULDAuctionCollarMessage const & msg);
+    void handleOperationalHaltMessage(ITCH::OperationalHaltMessage const & msg);
+    void handleAddOrderMessage(ITCH::AddOrderMessage const & msg);
+    void handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributionMessage const & msg);
+    void handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg);
+    void handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const & msg);
+    void handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg);
+    void handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg);
+    void handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg);
+    void handleTradeMessage(ITCH::TradeMessage const & msg);
+    void handleCrossTradeMessage(ITCH::CrossTradeMessage const & msg);
+    void handleBrokenTradeMessage(ITCH::BrokenTradeMessage const & msg);
+    void handleNOIIMessage(ITCH::NOIIMessage const & msg);
+    void handleRetailInterestMessage(ITCH::RetailInterestMessage const & msg);
+    void handleDirectListingWithCapitalRaisePriceDiscoveryMessage(ITCH::DirectListingWithCapitalRaisePriceDiscoveryMessage const & msg);
 
     uint32_t getLimitVolume(uint32_t limitprice) const; // keep track Level obj
     Order const * getBestBid() const;   // largest map
@@ -46,6 +65,10 @@ public:
     uint32_t getLastExecutedSize() const;   // keep track in book
 
 private:
+
+    bool addOrder(Order*);  // add to o1 orders map, get level from o1 levels map and append
+    bool deleteOrder(uint64_t orderReferenceNumber);    // get order from id map, set prev=next, delete from map
+
     // <price, Level>
     std::map<uint32_t, Level*> bids;
     std::map<uint32_t, Level*> offers;
