@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
                 books[m.stockLocate].handleAddOrderMPIDAttributionMessage(m);
                 break;
             }
-            [[likely]] case ITCH::OrderExecutedMessageType: {
+            case ITCH::OrderExecutedMessageType: {
                 ITCH::OrderExecutedMessage m = ITCH::Parser::createOrderExecutedMessage(messageData);
                 books[m.stockLocate].handleOrderExecutedMessage(m);
                 break;
