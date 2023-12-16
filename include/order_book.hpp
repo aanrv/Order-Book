@@ -66,17 +66,17 @@ public:
 
 private:
 
-    bool addOrder(Order*);  // add to o1 orders map, get level from o1 levels map and append
-    bool deleteOrder(uint64_t orderReferenceNumber);    // get order from id map, set prev=next, delete from map
+    bool addOrder(Order*);
+    bool deleteOrder(uint64_t orderReferenceNumber);
 
-    // <price, Level>
+    // <price, Level> sorted log(n)
     std::map<uint32_t, Level*> bids;
     std::map<uint32_t, Level*> offers;
 
     // quick access
     // <referenceNumber, Order>
     std::unordered_map<uint64_t, Order*> orders;
-    // <price, Level>
+    // <price, Level> o(1)
     std::unordered_map<uint32_t, Level*> levels;
 
     boost::object_pool<Order> ordersmem;

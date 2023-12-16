@@ -4,11 +4,15 @@ SRC		= src
 FLAGS	= -Wall -Wextra -Werror
 INC		= $(PWD)/include
 PROF	= -O0 -pg
+DEBUG	= -g
 
 all: order-book
 
 profile: FLAGS += $(PROF)
 profile: all
+
+debug: FLAGS += $(DEBUG)
+debug: all
 
 order-book: itch_reader.o order_book.o main.o
 	$(CC) -std=$(CPPVER) $(FLAGS) $(SRC)/itch_reader.o $(SRC)/order_book.o $(SRC)/main.o -o order-book

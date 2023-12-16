@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 
-#define LOG false
+#define LOG true
 
 Level::Level(uint32_t _price) :
     price(_price),
@@ -26,6 +26,11 @@ Order::Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, 
     next(std::get<7>(args))
 {}
 
+/*
+ * Check if order already exists, do nothing and return if does
+ * Construct order using mempool
+ * addOrder()
+ */
 void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
 #if LOG
     std::cout << msg << std::endl;
@@ -33,8 +38,8 @@ void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
 
     if(orders.contains(msg.orderReferenceNumber)) {
         // spec says ref num is day-unique
-        // but file has a duplicate
-        // consider erroneous for now
+        // but file has duplicates
+        // consider erroneous and ignore
 #if LOG
         cerr << "ERR addOrder: duplicate order with reference number ---\n";
         cerr << msg << "\n";
@@ -143,6 +148,7 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
         nullptr,
         nullptr
         );
+
     Order * const newOrder = ordersmem.construct(orderArgs);
     if (!newOrder) throw std::runtime_error("addOrder: failed to construct order " + std::to_string(msg.newOrderReferenceNumber));
     if (!deleteOrder(msg.originalOrderReferenceNumber)) {
@@ -153,49 +159,55 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
     }
 }
 
-// TODO add levels to bids offers
-// TODO change throws to return false?
+// TODO change throws to return false once done testing
+// adds order to id map and level obj
+// creates level obj if needed
+// if any failures, state is reverted, order level objects destroyed
 bool OrderBook::addOrder(Order* newOrder) {
-    auto const & orderRes = orders.insert({newOrder->referenceNumber, newOrder});
+    if (newOrder->side != ITCH::Side::BUY && newOrder->side != ITCH::Side::SELL) {
+        cout << "ERR unable to add order " << *newOrder << ", invalid side" << endl;
+        return false;
+    }
+    // add order to id,order map
+    auto const orderRes = orders.insert(std::pair(newOrder->referenceNumber, newOrder));
     if (!orderRes.second) throw std::runtime_error("addOrder: failed to insert order " + std::to_string(newOrder->referenceNumber));
 
     // create level if doesnt exist
     if (!levels.contains(newOrder->price)) {
+        // add level to mempool
         Level * const newLevel = levelsmem.construct(newOrder->price);
         if (!newLevel) throw std::runtime_error("addOrder: failed to construct level " + std::to_string(newOrder->price));
-        // insert into map
-        auto const & levelRes = levels.insert({newOrder->price, newLevel});
+
+        // insert into price,level map
+        auto const levelRes = levels.insert(std::pair(newLevel->price, newLevel));
         if (!levelRes.second) {
+            // remove references to order
+            // destroy order and level
             orders.erase(newOrder->referenceNumber);
             ordersmem.destroy(newOrder);
             levelsmem.destroy(newLevel);
             throw std::runtime_error("addOrder: failed to insert level " + std::to_string(newOrder->price));
         }
 
-        if(newOrder->side != ITCH::Side::BUY && newOrder->side != ITCH::Side::SELL) {
-            cout << "ERR invalid side for order " << *newOrder << endl;
-            orders.erase(newOrder->referenceNumber);
-            ordersmem.destroy(newOrder);
-            levelsmem.destroy(newLevel);
-        }
-        std::map<uint32_t, Level*> & targetMap = newOrder->side == ITCH::Side::BUY
+        // insert level into corresponding bid/ask tree
+        auto & targetMap = newOrder->side == ITCH::Side::BUY
             ? bids
             : offers;
-        cout << "map " << newOrder->side << " " << newOrder->price << endl;
-        for (auto it = targetMap.begin(); it != targetMap.end(); ++it) cout << it->first << ",";
-        cout << endl;
-        if (!targetMap.insert({newLevel->price, newLevel}).second) {
+        if (!targetMap.insert(std::pair(newLevel->price, newLevel)).second) {
             cout << "---" << endl;
             cout << *newLevel << endl;
             cout << *newOrder << endl;
             throw std::runtime_error("failed to add level to bids offers");
         }
     }
-    // get level for price, add order to end, update num shares
+
+    // TODO add assert flag
     assert(levels.count(newOrder->price));
+
+    // get level for price and add order to end of level
     Level * const orderLevel = levels.at(newOrder->price);
-    assert(orderLevel != nullptr);
     if (!orderLevel->last) {
+        // TODO temp check
         if (orderLevel->first) {
 #if LOG
             std::cerr << "ERR" << std::endl;
@@ -203,15 +215,16 @@ bool OrderBook::addOrder(Order* newOrder) {
 #endif
             throw std::runtime_error("addOrder: non empty level with null last");
         }
-        // if level is empty, insert is both first and last
+        // if level is empty, inserted order is both first and last
         orderLevel->first = newOrder;
         orderLevel->last = newOrder;
     } else {
-        // otherwise append and update last
+        // otherwise just append and update last
         orderLevel->last->next = newOrder;
         newOrder->prev = orderLevel->last;
         orderLevel->last = newOrder;
     }
+
     return true;
 }
 
@@ -225,16 +238,18 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     }
     Order * const target = orders.at(orderReferenceNumber);
     // remove order from map
-    if (!orders.erase(orderReferenceNumber)) throw std::runtime_error("deleteOrder: failed to erase order " + std::to_string(orderReferenceNumber));
+    if (!orders.erase(orderReferenceNumber)) throw std::runtime_error("deleteOrder: found order but failed to erase order " + std::to_string(orderReferenceNumber));
 
-    // remove order from list, connect remaining nodes
+    // remove order from level list, connect remaining nodes
     if (target->prev) {
         target->prev->next = target->next;
     }
     if (target->next) {
         target->next->prev = target->prev;
     }
+
     // remove from level pointers if first/last
+    // TODO assert flag and handle with if
     assert(levels.count(target->price));
     Level * const level = levels.at(target->price);
 #if LOG
@@ -254,16 +269,20 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
 #if LOG
         cout << "LVL deleting level " << level->price << " side " << target->side << endl;
 #endif
+        // TODO handle properly
         if (!levels.erase(level->price)) {
             cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << endl;
+            throw std::runtime_error("failed to erase level");
         }
 
+        // TODO assert flag
         assert(target->side == ITCH::Side::BUY || target->side == ITCH::Side::SELL);
-        std::map<uint32_t, Level*> & targetMap = target->side == ITCH::Side::BUY
+        auto & targetMap = target->side == ITCH::Side::BUY
             ? bids
             : offers;
-        cout << "deleting from map " << target->side << " " << target->price << endl;
-        for (auto it = targetMap.begin(); it != targetMap.end(); ++it) cout << it->first << ",";
+#if LOG
+        cout << "LVL deleting from map " << target->side << " " << target->price << endl;
+#endif
         if (!targetMap.erase(level->price)) {
             cout << "---" << endl;
             cout << *level << endl;
