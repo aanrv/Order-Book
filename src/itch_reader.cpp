@@ -39,9 +39,13 @@ ITCH::Reader::~Reader() {
 }
 
 char const * ITCH::Reader::nextMessage() {
-#if ASSERT
-    assert(_buffer < (buffer + bufferSize));
-#endif
+    // if entire buffer processed, perform read and reset _buffer
+    if (_buffer == (buffer + bufferSize)) {
+        ssize_t readBytes = read(fdItch, buffer, bufferSize);
+        if (readBytes <= 0) return nullptr;
+        validBytes = readBytes;
+        _buffer = buffer;
+    }
 
     // message header is 2 bytes
     // if attempting to read header will go out of bounds
@@ -166,15 +170,6 @@ char const * ITCH::Reader::nextMessage() {
 #if ASSERT
     assert(_buffer <= (buffer + bufferSize));
 #endif
-
-    // if entire buffer processed, perform read and reset _buffer
-    // do this at end so _buffer pointer is left in a valid state after function call
-    if (_buffer == (buffer + bufferSize)) {
-        ssize_t readBytes = read(fdItch, buffer, bufferSize);
-        if (readBytes <= 0) return nullptr;
-        validBytes = readBytes;
-        _buffer = buffer;
-    }
 
     return out;
 }
