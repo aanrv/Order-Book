@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 
-#define LOG true
+#define LOG false
 
 Level::Level(uint32_t _price) :
     price(_price),
@@ -171,6 +171,25 @@ bool OrderBook::addOrder(Order* newOrder) {
             levelsmem.destroy(newLevel);
             throw std::runtime_error("addOrder: failed to insert level " + std::to_string(newOrder->price));
         }
+
+        if(newOrder->side != ITCH::Side::BUY && newOrder->side != ITCH::Side::SELL) {
+            cout << "ERR invalid side for order " << *newOrder << endl;
+            orders.erase(newOrder->referenceNumber);
+            ordersmem.destroy(newOrder);
+            levelsmem.destroy(newLevel);
+        }
+        std::map<uint32_t, Level*> & targetMap = newOrder->side == ITCH::Side::BUY
+            ? bids
+            : offers;
+        cout << "map " << newOrder->side << " " << newOrder->price << endl;
+        for (auto it = targetMap.begin(); it != targetMap.end(); ++it) cout << it->first << ",";
+        cout << endl;
+        if (!targetMap.insert({newLevel->price, newLevel}).second) {
+            cout << "---" << endl;
+            cout << *newLevel << endl;
+            cout << *newOrder << endl;
+            throw std::runtime_error("failed to add level to bids offers");
+        }
     }
     // get level for price, add order to end, update num shares
     assert(levels.count(newOrder->price));
@@ -233,10 +252,23 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // consider not destroying when empty, more memory but better performance if more orders with same price come in
     if (!level->first && !level->last) {
 #if LOG
-        cout << "deleting level " << level->price << " side " << target->side << endl;
+        cout << "LVL deleting level " << level->price << " side " << target->side << endl;
 #endif
         if (!levels.erase(level->price)) {
             cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << endl;
+        }
+
+        assert(target->side == ITCH::Side::BUY || target->side == ITCH::Side::SELL);
+        std::map<uint32_t, Level*> & targetMap = target->side == ITCH::Side::BUY
+            ? bids
+            : offers;
+        cout << "deleting from map " << target->side << " " << target->price << endl;
+        for (auto it = targetMap.begin(); it != targetMap.end(); ++it) cout << it->first << ",";
+        if (!targetMap.erase(level->price)) {
+            cout << "---" << endl;
+            cout << *level << endl;
+            cout << *target << endl;
+            throw std::runtime_error("failed to add level to bids offers");
         }
         levelsmem.destroy(level);
     }

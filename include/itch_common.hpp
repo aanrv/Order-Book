@@ -11,6 +11,11 @@ constexpr size_t maxITCHMessageSize     = 50;
 constexpr size_t messageHeaderLength    = 2;
 constexpr size_t messageTypeIndex       = 2;
 
+namespace Side {
+    constexpr char BUY  = 'B';
+    constexpr char SELL = 'S';
+}
+
 constexpr char SystemEventMessageType               = 'S';
 constexpr char StockDirectoryMessageType            = 'R';
 constexpr char StockTradingActionMessageType        = 'H';
