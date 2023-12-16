@@ -3,9 +3,8 @@
 #include <cstdint>
 #include <tuple>
 
+// TODO use boost log or glog instead
 #include <iostream>
-using namespace std;
-
 #define LOG true
 
 Level::Level(uint32_t _price) :
@@ -41,8 +40,8 @@ void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
         // but file has duplicates
         // consider erroneous and ignore
 #if LOG
-        cerr << "ERR addOrder: duplicate order with reference number ---\n";
-        cerr << msg << "\n";
+        std::cerr << "ERR addOrder: duplicate order with reference number ---\n";
+        std::cerr << msg << "\n";
 #endif
         return;
     }
@@ -76,8 +75,8 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
         // but file has a duplicate
         // consider erroneous for now
 #if LOG
-        cerr << "ERR addOrder: duplicate order with reference number ---\n";
-        cerr << msg << "\n";
+        std::cerr << "ERR addOrder: duplicate order with reference number ---\n";
+        std::cerr << msg << "\n";
 #endif
         return;
     }
@@ -133,7 +132,7 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
 #endif
     if (!orders.count(msg.originalOrderReferenceNumber)) {
 #if LOG
-        cerr << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order" << endl;
+        std::cerr << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order" << std::endl;
 #endif
         return;
     }
@@ -165,7 +164,7 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
 // if any failures, state is reverted, order level objects destroyed
 bool OrderBook::addOrder(Order* newOrder) {
     if (newOrder->side != ITCH::Side::BUY && newOrder->side != ITCH::Side::SELL) {
-        cout << "ERR unable to add order " << *newOrder << ", invalid side" << endl;
+        std::cout << "ERR unable to add order " << *newOrder << ", invalid side" << std::endl;
         return false;
     }
     // add order to id,order map
@@ -194,9 +193,9 @@ bool OrderBook::addOrder(Order* newOrder) {
             ? bids
             : offers;
         if (!targetMap.insert(std::pair(newLevel->price, newLevel)).second) {
-            cout << "---" << endl;
-            cout << *newLevel << endl;
-            cout << *newOrder << endl;
+            std::cout << "---" << std::endl;
+            std::cout << *newLevel << std::endl;
+            std::cout << *newOrder << std::endl;
             throw std::runtime_error("failed to add level to bids offers");
         }
     }
@@ -254,7 +253,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     Level * const level = levels.at(target->price);
 #if LOG
     if (!level) {
-        cerr << "ERR deleteOrder: failed to find level " << target->price << endl;
+        std::cerr << "ERR deleteOrder: failed to find level " << target->price << std::endl;
     }
 #endif
     if (level->first == target) {
@@ -267,11 +266,11 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // consider not destroying when empty, more memory but better performance if more orders with same price come in
     if (!level->first && !level->last) {
 #if LOG
-        cout << "LVL deleting level " << level->price << " side " << target->side << endl;
+        std::cout << "LVL deleting level " << level->price << " side " << target->side << std::endl;
 #endif
         // TODO handle properly
         if (!levels.erase(level->price)) {
-            cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << endl;
+            std::cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << std::endl;
             throw std::runtime_error("failed to erase level");
         }
 
@@ -281,12 +280,12 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
             ? bids
             : offers;
 #if LOG
-        cout << "LVL deleting from map " << target->side << " " << target->price << endl;
+        std::cout << "LVL deleting from map " << target->side << " " << target->price << std::endl;
 #endif
         if (!targetMap.erase(level->price)) {
-            cout << "---" << endl;
-            cout << *level << endl;
-            cout << *target << endl;
+            std::cout << "---" << std::endl;
+            std::cout << *level << std::endl;
+            std::cout << *target << std::endl;
             throw std::runtime_error("failed to add level to bids offers");
         }
         levelsmem.destroy(level);
