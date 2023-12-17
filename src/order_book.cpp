@@ -2,10 +2,9 @@
 #include "itch_common.hpp"
 #include <cstdint>
 #include <tuple>
+#include <glog/logging.h>
 
 // TODO use boost log or glog instead
-#include <iostream>
-#define LOG false
 #define ASSERT false
 
 Level::Level(uint32_t _price) :
@@ -32,16 +31,14 @@ Order::Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, 
  * addOrder()
  */
 void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
-#if LOG
-    std::cout << msg << std::endl;
-#endif
+    DLOG(INFO) << msg;
 #if ASSERT
     if(orders.contains(msg.orderReferenceNumber)) {
         // spec says ref num is day-unique
         // but file has duplicates
         // consider erroneous and ignore
-        std::cerr << "ERR addOrder: duplicate order with reference number ---\n";
-        std::cerr << msg << "\n";
+        DLOG(ERROR) << "ERR addOrder: duplicate order with reference number ---\n";
+        DLOG(ERROR) << msg;
         throw std::runtime_error("duplicate order");
         return;
     }
@@ -68,16 +65,14 @@ void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
 }
 
 void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributionMessage const & msg) {
-#if LOG
-    std::cout << msg << std::endl;
-#endif
+    DLOG(INFO) << msg;
 #if ASSERT
     if(orders.contains(msg.orderReferenceNumber)) {
         // spec says ref num is day-unique
         // but file has a duplicate
         // consider erroneous for now
-        std::cerr << "ERR addOrder: duplicate order with reference number ---\n";
-        std::cerr << msg << "\n";
+        DLOG(ERROR) << "ERR addOrder: duplicate order with reference number ---\n";
+        DLOG(ERROR) << msg << "\n";
         throw std::runtime_error("duplicate order");
         return;
     }
@@ -104,38 +99,28 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
 }
 
 void OrderBook::handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg) {
-#if LOG
-    std::cout << msg << std::endl;
-#endif
+    DLOG(INFO) << msg;
     (void)msg;
 }
 void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const & msg) {
-#if LOG
-    std::cout << msg << std::endl;
-#endif
+    DLOG(INFO) << msg;
     (void)msg;
 }
 void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
-#if LOG
-    std::cout << msg << std::endl;
-#endif
+    DLOG(INFO) << msg;
     (void)msg;
 }
 
 void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
-#if LOG
-    std::cout << msg << std::endl;
-#endif
+    DLOG(INFO) << msg;
     deleteOrder(msg.orderReferenceNumber);
 }
 
 void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg) {
-#if LOG
-    std::cout << msg << std::endl;
-#endif
+    DLOG(INFO) << msg;
 #if ASSERT
     if (!orders.count(msg.originalOrderReferenceNumber)) {
-        std::cerr << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order" << std::endl;
+        DLOG(ERROR) << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order";
         throw std::runtime_error("order");
         return;
     }
@@ -170,7 +155,7 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
 // if any failures, state is reverted, order level objects destroyed
 bool OrderBook::addOrder(Order* newOrder) {
     if (newOrder->side != ITCH::Side::BUY && newOrder->side != ITCH::Side::SELL) {
-        std::cout << "ERR unable to add order " << *newOrder << ", invalid side" << std::endl;
+        DLOG(ERROR) << "ERR unable to add order " << *newOrder << ", invalid side";
         return false;
     }
     // add order to id,order map
@@ -206,14 +191,12 @@ bool OrderBook::addOrder(Order* newOrder) {
             ? bids
             : offers;
         if (!targetMap.insert(std::pair(newLevel->price, newLevel)).second) {
-            std::cout << "---" << std::endl;
-            std::cout << *newLevel << std::endl;
-            std::cout << *newOrder << std::endl;
+            DLOG(ERROR) << "---";
+            DLOG(ERROR) << *newLevel;
+            DLOG(ERROR) << *newOrder;
             throw std::runtime_error("failed to add level to bids offers");
         }
-#if LOG
-        std::cout << "LVL added " << *newLevel << std::endl;
-#endif
+        DLOG(INFO) << "LVL added " << *newLevel;
     }
 
 #if ASSERT
@@ -226,8 +209,8 @@ bool OrderBook::addOrder(Order* newOrder) {
         // TODO temp check
 #if ASSERT
         if (orderLevel->first) {
-            std::cerr << "ERR" << std::endl;
-            std::cerr << *orderLevel << std::endl;
+            DLOG(ERROR) << "ERR";
+            DLOG(ERROR) << *orderLevel;
             throw std::runtime_error("addOrder: non empty level with null last");
         }
 #endif
@@ -240,9 +223,7 @@ bool OrderBook::addOrder(Order* newOrder) {
         newOrder->prev = orderLevel->last;
         orderLevel->last = newOrder;
     }
-#if LOG
-    std::cout << "ADD added order " << newOrder->referenceNumber << " to level " << orderLevel << std::endl;
-#endif
+    DLOG(INFO) << "ADD added order " << newOrder->referenceNumber << " to level " << orderLevel;
     return true;
 }
 
@@ -250,7 +231,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
 #if ASSERT
     // get order to delete
     if (!orders.count(orderReferenceNumber)) {
-        std::cerr << "ERR Order: " << orderReferenceNumber << " not found for deletion" << std::endl;
+        DLOG(ERROR) << "ERR Order: " << orderReferenceNumber << " not found for deletion";
         throw std::runtime_error("order not found for delete");
         return false;
     }
@@ -276,7 +257,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     Level * const level = levels.at(target->price);
 #if ASSERT
     if (!level) {
-        std::cerr << "ERR deleteOrder: failed to find level " << target->price << std::endl;
+        DLOG(ERROR) << "ERR deleteOrder: failed to find level " << target->price;
         throw std::runtime_error("level not found for delete");
     }
 #endif
@@ -289,12 +270,10 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // remove and destroy level if empty
     // consider not destroying when empty, more memory but better performance if more orders with same price come in
     if (!level->first && !level->last) {
-#if LOG
-        std::cout << "LVL deleting level " << level->price << " side " << target->side << std::endl;
-#endif
+        DLOG(INFO) << "LVL deleting level " << level->price << " side " << target->side;
         // TODO handle properly
         if (!levels.erase(level->price)) {
-            std::cerr << "ERR deleteOrder: failed to erase level for destroy " << level->price << std::endl;
+            DLOG(ERROR) << "ERR deleteOrder: failed to erase level for destroy " << level->price;
             throw std::runtime_error("failed to erase level");
         }
 
@@ -305,20 +284,16 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
         auto & targetMap = target->side == ITCH::Side::BUY
             ? levelBids
             : levelOffers;
-#if LOG
-        std::cout << "LVL deleting from map " << target->side << " " << target->price << std::endl;
-#endif
+        DLOG(INFO) << "LVL deleting from map " << target->side << " " << target->price;
         if (!targetMap.erase(level->price)) {
-            std::cout << "---" << std::endl;
-            std::cout << *level << std::endl;
-            std::cout << *target << std::endl;
+            DLOG(ERROR) << "---";
+            DLOG(ERROR) << *level;
+            DLOG(ERROR) << *target;
             throw std::runtime_error("failed to delete level from bids offers");
         }
         levelsmem.destroy(level);
     }
-#if LOG
-    std::cout << "DEL deleted order " << target->referenceNumber << " from level " << level << std::endl;
-#endif
+    DLOG(INFO) << "DEL deleted order " << target->referenceNumber << " from level " << level;
     ordersmem.destroy(target);
     return true;
 }

@@ -15,7 +15,7 @@ debug: FLAGS += $(DEBUG)
 debug: all
 
 order-book: itch_reader.o order_book.o main.o
-	$(CC) -std=$(CPPVER) $(FLAGS) $(SRC)/itch_reader.o $(SRC)/order_book.o $(SRC)/main.o -o order-book
+	$(CC) -std=$(CPPVER) $(FLAGS) $(SRC)/itch_reader.o $(SRC)/order_book.o $(SRC)/main.o -o order-book -lglog
 
 main.o:	$(SRC)/main.cpp
 	$(CC) -std=$(CPPVER) -c -I$(INC) $(FLAGS) $(SRC)/main.cpp -o $(SRC)/main.o
