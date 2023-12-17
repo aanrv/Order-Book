@@ -174,6 +174,7 @@ bool OrderBook::addOrder(Order* newOrder) {
     auto const orderRes = orders.insert(std::pair(newOrder->referenceNumber, newOrder));
     if (!orderRes.second) throw std::runtime_error("addOrder: failed to insert order " + std::to_string(newOrder->referenceNumber));
 
+    auto & levels = newOrder->side == ITCH::Side::BUY ? levelBids : levelOffers;
     // create level if doesnt exist
     if (!levels.contains(newOrder->price)) {
         // add level to mempool
@@ -252,6 +253,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
         target->next->prev = target->prev;
     }
 
+    auto & levels = target->side == ITCH::Side::BUY ? bids : offers;
     // remove from level pointers if first/last
     // TODO assert flag and handle with if
     assert(levels.count(target->price));
@@ -283,8 +285,8 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
         // TODO assert flag
         assert(target->side == ITCH::Side::BUY || target->side == ITCH::Side::SELL);
         auto & targetMap = target->side == ITCH::Side::BUY
-            ? bids
-            : offers;
+            ? levelBids
+            : levelOffers;
 #if LOG
         std::cout << "LVL deleting from map " << target->side << " " << target->price << std::endl;
 #endif

@@ -77,7 +77,9 @@ private:
     // <referenceNumber, Order>
     std::unordered_map<uint64_t, Order*> orders;
     // <price, Level> o(1)
-    std::unordered_map<uint32_t, Level*> levels;
+    // map for each side in case same price
+    std::unordered_map<uint32_t, Level*> levelBids;
+    std::unordered_map<uint32_t, Level*> levelOffers;
 
     boost::object_pool<Order> ordersmem;
     boost::object_pool<Level> levelsmem;
