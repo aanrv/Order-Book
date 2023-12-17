@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
                 books[m.stockLocate].handleAddOrderMPIDAttributionMessage(m);
                 break;
             }
-            case ITCH::OrderExecutedMessageType: {
+/*            case ITCH::OrderExecutedMessageType: {
                 ITCH::OrderExecutedMessage m = ITCH::Parser::createOrderExecutedMessage(messageData);
                 books[m.stockLocate].handleOrderExecutedMessage(m);
                 break;
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
                 ITCH::OrderCancelMessage m = ITCH::Parser::createOrderCancelMessage(messageData);
                 books[m.stockLocate].handleOrderCancelMessage(m);
                 break;
-            }
+            }*/
             [[likely]] case ITCH::OrderDeleteMessageType: {
                 ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
                 books[m.stockLocate].handleOrderDeleteMessage(m);

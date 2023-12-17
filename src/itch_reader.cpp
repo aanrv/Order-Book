@@ -5,13 +5,7 @@
 #include <unistd.h>                 // read
 #include <endian.h>                 // be16toh
 
-#include <chrono>
-
-#include <iostream>                 // todo remove
-
-#define LOG     false
-#define ASSERT  true
-
+#define ASSERT  false
 #if ASSERT
 #include <cassert>
 #endif
@@ -25,7 +19,9 @@ ITCH::Reader::Reader(char const * _filename, size_t _bufferSize)
     : fdItch(open(_filename, O_RDONLY)),
     bufferSize(_bufferSize),
     buffer(new char[_bufferSize]),
-    _buffer(buffer) {
+    _buffer(buffer),
+    validBytes(0),
+    totalBytesRead(0) {
 #if ASSERT
     assert(bufferSize > messageHeaderLength + maxITCHMessageSize);
 #endif
@@ -63,7 +59,7 @@ char const * ITCH::Reader::nextMessage() {
     // message header is 2 byte big endian number containing message length
     uint16_t messageLength = be16toh(*(uint16_t *)_buffer);
     // 0 message size indicates end of session
-    if (messageLength == 0) { std::cout << "session end" << '\n'; return nullptr; }
+    if (messageLength == 0) return nullptr;
     // handle case if current message is partial
     // i.e. message extends past last byte in buffer
     // copy current message to beginning of this buffer
@@ -163,9 +159,6 @@ char const * ITCH::Reader::nextMessage() {
     _buffer += (messageHeaderLength + messageLength);
 
     totalBytesRead += (messageHeaderLength + messageLength);
-#if LOG
-    std::cout << "msgtype " << *(out + 2) << " len " << messageLength << " totalbytesread " << totalBytesRead << " buffer remaining " << (buffer + bufferSize - _buffer) << '\n';
-#endif
 
 #if ASSERT
     assert(_buffer <= (buffer + bufferSize));
