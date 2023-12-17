@@ -5,7 +5,7 @@
 
 // TODO use boost log or glog instead
 #include <iostream>
-#define LOG true
+#define LOG false
 
 Level::Level(uint32_t _price) :
     price(_price),
@@ -202,7 +202,9 @@ bool OrderBook::addOrder(Order* newOrder) {
             std::cout << *newOrder << std::endl;
             throw std::runtime_error("failed to add level to bids offers");
         }
+#if LOG
         std::cout << "LVL added " << *newLevel << std::endl;
+#endif
     }
 
     // TODO add assert flag
@@ -228,7 +230,9 @@ bool OrderBook::addOrder(Order* newOrder) {
         newOrder->prev = orderLevel->last;
         orderLevel->last = newOrder;
     }
+#if LOG
     std::cout << "ADD added order " << newOrder->referenceNumber << " to level " << orderLevel << std::endl;
+#endif
     return true;
 }
 
@@ -298,7 +302,9 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
         }
         levelsmem.destroy(level);
     }
+#if LOG
     std::cout << "DEL deleted order " << target->referenceNumber << " from level " << level << std::endl;
+#endif
     ordersmem.destroy(target);
     return true;
 }
