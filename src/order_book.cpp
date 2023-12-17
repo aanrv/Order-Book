@@ -42,6 +42,7 @@ void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
 #if LOG
         std::cerr << "ERR addOrder: duplicate order with reference number ---\n";
         std::cerr << msg << "\n";
+        throw std::runtime_error("duplicate order");
 #endif
         return;
     }
@@ -77,6 +78,7 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
 #if LOG
         std::cerr << "ERR addOrder: duplicate order with reference number ---\n";
         std::cerr << msg << "\n";
+        throw std::runtime_error("duplicate order");
 #endif
         return;
     }
@@ -134,6 +136,7 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
 #if LOG
         std::cerr << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order" << std::endl;
 #endif
+        throw std::runtime_error("order");
         return;
     }
     Order const * oldOrder = orders.at(msg.originalOrderReferenceNumber);
@@ -198,6 +201,7 @@ bool OrderBook::addOrder(Order* newOrder) {
             std::cout << *newOrder << std::endl;
             throw std::runtime_error("failed to add level to bids offers");
         }
+        std::cout << "LVL added " << *newLevel << std::endl;
     }
 
     // TODO add assert flag
@@ -223,7 +227,7 @@ bool OrderBook::addOrder(Order* newOrder) {
         newOrder->prev = orderLevel->last;
         orderLevel->last = newOrder;
     }
-
+    std::cout << "ADD added order " << newOrder->referenceNumber << " to level " << orderLevel << std::endl;
     return true;
 }
 
@@ -233,6 +237,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
 #if LOG
         std::cerr << "ERR Order: " << orderReferenceNumber << " not found for deletion" << std::endl;
 #endif
+        throw std::runtime_error("order not found for delete");
         return false;
     }
     Order * const target = orders.at(orderReferenceNumber);
@@ -254,6 +259,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
 #if LOG
     if (!level) {
         std::cerr << "ERR deleteOrder: failed to find level " << target->price << std::endl;
+        throw std::runtime_error("level not found for delete");
     }
 #endif
     if (level->first == target) {
@@ -286,10 +292,11 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
             std::cout << "---" << std::endl;
             std::cout << *level << std::endl;
             std::cout << *target << std::endl;
-            throw std::runtime_error("failed to add level to bids offers");
+            throw std::runtime_error("failed to delete level from bids offers");
         }
         levelsmem.destroy(level);
     }
+    std::cout << "DEL deleted order " << target->referenceNumber << " from level " << level << std::endl;
     ordersmem.destroy(target);
     return true;
 }
