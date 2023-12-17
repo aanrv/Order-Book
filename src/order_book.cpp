@@ -4,9 +4,6 @@
 #include <tuple>
 #include <glog/logging.h>
 
-// TODO use boost log or glog instead
-#define ASSERT false
-
 Level::Level(uint32_t _price) :
     price(_price),
     limitVolume(0),
@@ -32,17 +29,7 @@ Order::Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, 
  */
 void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
     DLOG(INFO) << msg;
-#if ASSERT
-    if(orders.contains(msg.orderReferenceNumber)) {
-        // spec says ref num is day-unique
-        // but file has duplicates
-        // consider erroneous and ignore
-        DLOG(ERROR) << "ERR addOrder: duplicate order with reference number ---\n";
-        DLOG(ERROR) << msg;
-        throw std::runtime_error("duplicate order");
-        return;
-    }
-#endif
+    DLOG_ASSERT(!orders.contains(msg.orderReferenceNumber));
     auto orderArgs = std::make_tuple(
         msg.orderReferenceNumber,
         msg.stockLocate,
@@ -56,9 +43,7 @@ void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
     // construct Order in mempool
     // add Order* to unordered_map
     Order * const newOrder = ordersmem.construct(orderArgs);
-#if ASSERT
-    if (!newOrder) throw std::runtime_error("addOrder: failed to construct order " + std::to_string(msg.orderReferenceNumber));
-#endif
+    DLOG_ASSERT(newOrder);
     if (!addOrder(newOrder)) {
         ordersmem.destroy(newOrder);
     }
@@ -66,17 +51,7 @@ void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
 
 void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributionMessage const & msg) {
     DLOG(INFO) << msg;
-#if ASSERT
-    if(orders.contains(msg.orderReferenceNumber)) {
-        // spec says ref num is day-unique
-        // but file has a duplicate
-        // consider erroneous for now
-        DLOG(ERROR) << "ERR addOrder: duplicate order with reference number ---\n";
-        DLOG(ERROR) << msg << "\n";
-        throw std::runtime_error("duplicate order");
-        return;
-    }
-#endif
+    DLOG_ASSERT(!orders.contains(msg.orderReferenceNumber));
     auto orderArgs = std::make_tuple(
         msg.orderReferenceNumber,
         msg.stockLocate,
@@ -90,9 +65,7 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
     // construct Order in mempool
     // add Order* to unordered_map
     Order * const newOrder = ordersmem.construct(orderArgs);
-#if ASSERT
-    if (!newOrder) throw std::runtime_error("addOrder: failed to construct order " + std::to_string(msg.orderReferenceNumber));
-#endif
+    DLOG_ASSERT(newOrder);
     if (!addOrder(newOrder)) {
         ordersmem.destroy(newOrder);
     }
@@ -100,15 +73,12 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
 
 void OrderBook::handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg) {
     DLOG(INFO) << msg;
-    (void)msg;
 }
 void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const & msg) {
     DLOG(INFO) << msg;
-    (void)msg;
 }
 void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
     DLOG(INFO) << msg;
-    (void)msg;
 }
 
 void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
@@ -118,13 +88,7 @@ void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
 
 void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg) {
     DLOG(INFO) << msg;
-#if ASSERT
-    if (!orders.count(msg.originalOrderReferenceNumber)) {
-        DLOG(ERROR) << "ERR replaceOrder: failed to find original message " << msg.originalOrderReferenceNumber << ", unable to add new order";
-        throw std::runtime_error("order");
-        return;
-    }
-#endif
+    DLOG_ASSERT(orders.count(msg.originalOrderReferenceNumber));
     Order const * oldOrder = orders.at(msg.originalOrderReferenceNumber);
     auto orderArgs = std::make_tuple(
         msg.newOrderReferenceNumber,
@@ -138,9 +102,7 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
         );
 
     Order * const newOrder = ordersmem.construct(orderArgs);
-#if ASSERT
-    if (!newOrder) throw std::runtime_error("addOrder: failed to construct order " + std::to_string(msg.newOrderReferenceNumber));
-#endif
+    DLOG_ASSERT(newOrder);
     if (!deleteOrder(msg.originalOrderReferenceNumber)) {
         ordersmem.destroy(newOrder);
     }
@@ -160,31 +122,17 @@ bool OrderBook::addOrder(Order* newOrder) {
     }
     // add order to id,order map
     auto const orderRes = orders.insert(std::pair(newOrder->referenceNumber, newOrder));
-    (void)orderRes;
-#if ASSERT
-    if (!orderRes.second) throw std::runtime_error("addOrder: failed to insert order " + std::to_string(newOrder->referenceNumber));
-#endif
+    DLOG_ASSERT(orderRes.second);
     auto & levels = newOrder->side == ITCH::Side::BUY ? levelBids : levelOffers;
     // create level if doesnt exist
     if (!levels.contains(newOrder->price)) {
         // add level to mempool
         Level * const newLevel = levelsmem.construct(newOrder->price);
-#if ASSERT
-        if (!newLevel) throw std::runtime_error("addOrder: failed to construct level " + std::to_string(newOrder->price));
-#endif
+        DLOG_ASSERT(newLevel);
         // insert into price,level map
         auto const levelRes = levels.insert(std::pair(newLevel->price, newLevel));
         (void)levelRes;
-#if ASSERT
-        if (!levelRes.second) {
-            // remove references to order
-            // destroy order and level
-            orders.erase(newOrder->referenceNumber);
-            ordersmem.destroy(newOrder);
-            levelsmem.destroy(newLevel);
-            throw std::runtime_error("addOrder: failed to insert level " + std::to_string(newOrder->price));
-        }
-#endif
+        DLOG_ASSERT(levelRes.second);
 
         // insert level into corresponding bid/ask tree
         auto & targetMap = newOrder->side == ITCH::Side::BUY
@@ -199,21 +147,13 @@ bool OrderBook::addOrder(Order* newOrder) {
         DLOG(INFO) << "LVL added " << *newLevel;
     }
 
-#if ASSERT
-    assert(levels.count(newOrder->price));
-#endif
+    DLOG_ASSERT(levels.count(newOrder->price));
 
     // get level for price and add order to end of level
     Level * const orderLevel = levels.at(newOrder->price);
     if (!orderLevel->last) {
         // TODO temp check
-#if ASSERT
-        if (orderLevel->first) {
-            DLOG(ERROR) << "ERR";
-            DLOG(ERROR) << *orderLevel;
-            throw std::runtime_error("addOrder: non empty level with null last");
-        }
-#endif
+        DLOG_ASSERT(!orderLevel->first);
         // if level is empty, inserted order is both first and last
         orderLevel->first = newOrder;
         orderLevel->last = newOrder;
@@ -228,14 +168,7 @@ bool OrderBook::addOrder(Order* newOrder) {
 }
 
 bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
-#if ASSERT
-    // get order to delete
-    if (!orders.count(orderReferenceNumber)) {
-        DLOG(ERROR) << "ERR Order: " << orderReferenceNumber << " not found for deletion";
-        throw std::runtime_error("order not found for delete");
-        return false;
-    }
-#endif
+    DLOG_ASSERT(orders.count(orderReferenceNumber));
     Order * const target = orders.at(orderReferenceNumber);
     // remove order from map
     if (!orders.erase(orderReferenceNumber)) throw std::runtime_error("deleteOrder: found order but failed to erase order " + std::to_string(orderReferenceNumber));
@@ -251,16 +184,9 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     auto & levels = target->side == ITCH::Side::BUY ? bids : offers;
     // remove from level pointers if first/last
     // TODO assert flag and handle with if
-#if ASSERT
-    assert(levels.count(target->price));
-#endif
+    DLOG_ASSERT(levels.count(target->price));
     Level * const level = levels.at(target->price);
-#if ASSERT
-    if (!level) {
-        DLOG(ERROR) << "ERR deleteOrder: failed to find level " << target->price;
-        throw std::runtime_error("level not found for delete");
-    }
-#endif
+    DLOG_ASSERT(level);
     if (level->first == target) {
         level->first = target->next;
     }
@@ -277,10 +203,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
             throw std::runtime_error("failed to erase level");
         }
 
-        // TODO assert flag
-#if ASSERT
-        assert(target->side == ITCH::Side::BUY || target->side == ITCH::Side::SELL);
-#endif
+        DLOG_ASSERT(target->side == ITCH::Side::BUY || target->side == ITCH::Side::SELL);
         auto & targetMap = target->side == ITCH::Side::BUY
             ? levelBids
             : levelOffers;
