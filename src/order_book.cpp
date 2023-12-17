@@ -71,14 +71,17 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
     }
 }
 
-void OrderBook::handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg) {
+/*void OrderBook::handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg) {
     DLOG(INFO) << msg;
 }
 void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const & msg) {
     DLOG(INFO) << msg;
-}
+}*/
 void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
     DLOG(INFO) << msg;
+    Order * o = orders.at(msg.orderReferenceNumber);
+    o->shares -= msg.cancelledShares;
+    DLOG_ASSERT(o->shares > 0);
 }
 
 void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
