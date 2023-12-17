@@ -25,13 +25,13 @@ ITCH::Reader::Reader(char const * _filename, size_t _bufferSize)
 #if ASSERT
     assert(bufferSize > messageHeaderLength + maxITCHMessageSize);
 #endif
-    if (fdItch == -1) { delete buffer; throw std::invalid_argument(std::string("Failed to open file: ") + _filename); }
-    if (read(fdItch, buffer, bufferSize) <= 0) { delete buffer; throw std::invalid_argument(std::string("Failed to read from file: ") + _filename); }
+    if (fdItch == -1) { delete[] buffer; throw std::invalid_argument(std::string("Failed to open file: ") + _filename); }
+    if (read(fdItch, buffer, bufferSize) <= 0) { delete[] buffer; throw std::invalid_argument(std::string("Failed to read from file: ") + _filename); }
 }
 
 ITCH::Reader::~Reader() {
     close(fdItch);
-    delete buffer;
+    delete[] buffer;
 }
 
 char const * ITCH::Reader::nextMessage() {
@@ -72,7 +72,7 @@ char const * ITCH::Reader::nextMessage() {
         ssize_t readBytes = read(fdItch, buffer + offset, bufferSize - offset);
         if (readBytes <= 0) {
             if (readBytes == 0) return nullptr;
-            if (readBytes == -1) { delete buffer; throw std::ios_base::failure("Failed to read from file"); }
+            if (readBytes == -1) { delete[] buffer; throw std::ios_base::failure("Failed to read from file"); }
         }
         validBytes = readBytes + offset;
         _buffer = buffer;
