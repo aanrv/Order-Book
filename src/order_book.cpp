@@ -11,7 +11,7 @@ Level::Level(uint32_t _price) :
     last(nullptr)
 {}
 
-Order::Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, Order*, Order*> args) :
+Order::Order(const std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, Order*, Order*> & args) :
     referenceNumber(std::get<0>(args)),
     stockLocate(std::get<1>(args)),
     timestamp(std::get<2>(args)),

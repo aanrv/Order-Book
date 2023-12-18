@@ -18,7 +18,7 @@ struct Order {
     uint32_t    price;
     Order*      prev;
     Order*      next;
-    Order(std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, Order*, Order*>);
+    Order(const std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint32_t, Order*, Order*> &);
 };
 
 struct Level {
