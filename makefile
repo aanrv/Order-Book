@@ -2,10 +2,12 @@ CC		= g++
 CPPVER	= c++20
 SRC		= src
 FLAGS	= -Wall -Wextra -Werror
+OPTI	= -O3
 INC		= $(PWD)/include
 PROF	= -O0 -pg
 DEBUG	= -g
 
+all: FLAGS += $(OPTI)
 all: order-book
 
 profile: FLAGS += $(PROF)
