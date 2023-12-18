@@ -50,12 +50,12 @@ int main(int argc, char** argv) {
                 ITCH::OrderExecutedWithPriceMessage m = ITCH::Parser::createOrderExecutedWithPriceMessage(messageData);
                 books[m.stockLocate].handleOrderExecutedWithPriceMessage(m);
                 break;
-            }
+            }*/
             case ITCH::OrderCancelMessageType: {
                 ITCH::OrderCancelMessage m = ITCH::Parser::createOrderCancelMessage(messageData);
                 books[m.stockLocate].handleOrderCancelMessage(m);
                 break;
-            }*/
+            }
             [[likely]] case ITCH::OrderDeleteMessageType: {
                 ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
                 books[m.stockLocate].handleOrderDeleteMessage(m);

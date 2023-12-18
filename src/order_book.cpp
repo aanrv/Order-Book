@@ -80,8 +80,8 @@ void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPrice
 void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
     DLOG(INFO) << msg;
     Order * o = orders.at(msg.orderReferenceNumber);
+    DLOG_ASSERT(msg.cancelledShares < o->shares);
     o->shares -= msg.cancelledShares;
-    DLOG_ASSERT(o->shares > 0);
 }
 
 void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
