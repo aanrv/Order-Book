@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     using std::chrono::high_resolution_clock;
     using std::chrono::duration_cast;
     using std::chrono::duration;
-    using std::chrono::nanoseconds;
+    using std::chrono::seconds;
     long long messageCount = 0;
     auto t1 = high_resolution_clock::now();
 #endif
@@ -89,8 +89,7 @@ int main(int argc, char** argv) {
 
 #if BENCH
     auto t2 = high_resolution_clock::now();
-    duration<double, std::nano> ms_double = t2 - t1;
-    std::cout << "processed " << messageCount << " messages (" << reader.getTotalBytesRead()  << " bytes) in " << ms_double.count() << " nanoseconds" << std::endl;
+    std::cout << "processed " << messageCount << " messages (" << reader.getTotalBytesRead()  << " bytes) in " << duration_cast<seconds>(t2 - t1).count() << " seconds" << std::endl;
 #endif
 }
 
