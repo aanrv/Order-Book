@@ -4,10 +4,10 @@
 #include "itch_common.hpp"
 #include <map>
 #include <list>
-#include <unordered_map>
 #include <cstdint>
 #include <tuple>
 #include <boost/pool/object_pool.hpp>
+#include <sparsehash/dense_hash_map>
 
 struct Order {
     uint64_t    referenceNumber;
@@ -64,6 +64,8 @@ public:
     uint32_t getLastExecutedPrice() const;  // keep track in book
     uint32_t getLastExecutedSize() const;   // keep track in book
 
+    OrderBook();
+
 private:
 
     bool addOrder(Order*);
@@ -75,11 +77,11 @@ private:
 
     // quick access
     // <referenceNumber, Order>
-    std::unordered_map<uint64_t, Order*> orders;
+    google::dense_hash_map<uint64_t, Order*> orders;
     // <price, Level> o(1)
     // map for each side in case same price
-    std::unordered_map<uint32_t, Level*> levelBids;
-    std::unordered_map<uint32_t, Level*> levelOffers;
+    google::dense_hash_map<uint32_t, Level*> levelBids;
+    google::dense_hash_map<uint32_t, Level*> levelOffers;
 
     boost::object_pool<Order> ordersmem;
     boost::object_pool<Level> levelsmem;

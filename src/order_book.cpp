@@ -22,6 +22,16 @@ Order::Order(const std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint
     next(std::get<7>(args))
 {}
 
+OrderBook::OrderBook() {
+    orders.set_empty_key(0);
+    levelBids.set_empty_key(0);
+    levelOffers.set_empty_key(0);
+    orders.set_deleted_key(-1);
+    levelBids.set_deleted_key(-1);
+    levelOffers.set_deleted_key(-1);
+
+}
+
 /*
  * Check if order already exists, do nothing and return if does
  * Construct order using mempool
@@ -29,7 +39,7 @@ Order::Order(const std::tuple<uint64_t, uint16_t, uint64_t, char, uint32_t, uint
  */
 void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
     DLOG(INFO) << msg;
-    DLOG_ASSERT(!orders.contains(msg.orderReferenceNumber));
+    DLOG_ASSERT(!orders.count(msg.orderReferenceNumber));
     auto orderArgs = std::make_tuple(
         msg.orderReferenceNumber,
         msg.stockLocate,
@@ -51,7 +61,7 @@ void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
 
 void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributionMessage const & msg) {
     DLOG(INFO) << msg;
-    DLOG_ASSERT(!orders.contains(msg.orderReferenceNumber));
+    DLOG_ASSERT(!orders.count(msg.orderReferenceNumber));
     auto orderArgs = std::make_tuple(
         msg.orderReferenceNumber,
         msg.stockLocate,
@@ -79,7 +89,7 @@ void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPrice
 }*/
 void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
     DLOG(INFO) << msg;
-    Order * o = orders.at(msg.orderReferenceNumber);
+    Order * o = orders[msg.orderReferenceNumber];
     DLOG_ASSERT(msg.cancelledShares < o->shares);
     o->shares -= msg.cancelledShares;
 }
@@ -92,7 +102,7 @@ void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
 void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg) {
     DLOG(INFO) << msg;
     DLOG_ASSERT(orders.count(msg.originalOrderReferenceNumber));
-    Order const * oldOrder = orders.at(msg.originalOrderReferenceNumber);
+    Order const * oldOrder = orders[msg.originalOrderReferenceNumber];
     auto orderArgs = std::make_tuple(
         msg.newOrderReferenceNumber,
         oldOrder->stockLocate,
@@ -128,7 +138,7 @@ bool OrderBook::addOrder(Order* newOrder) {
     DLOG_ASSERT(orderRes.second);
     auto & levels = newOrder->side == ITCH::Side::BUY ? levelBids : levelOffers;
     // create level if doesnt exist
-    if (!levels.contains(newOrder->price)) {
+    if (!levels.count(newOrder->price)) {
         // add level to mempool
         Level * const newLevel = levelsmem.construct(newOrder->price);
         DLOG_ASSERT(newLevel);
@@ -153,7 +163,7 @@ bool OrderBook::addOrder(Order* newOrder) {
     DLOG_ASSERT(levels.count(newOrder->price));
 
     // get level for price and add order to end of level
-    Level * const orderLevel = levels.at(newOrder->price);
+    Level * const orderLevel = levels[newOrder->price];
     if (!orderLevel->last) {
         // TODO temp check
         DLOG_ASSERT(!orderLevel->first);
@@ -172,7 +182,7 @@ bool OrderBook::addOrder(Order* newOrder) {
 
 bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     DLOG_ASSERT(orders.count(orderReferenceNumber));
-    Order * const target = orders.at(orderReferenceNumber);
+    Order * const target = orders[orderReferenceNumber];
     // remove order from map
     if (!orders.erase(orderReferenceNumber)) throw std::runtime_error("deleteOrder: found order but failed to erase order " + std::to_string(orderReferenceNumber));
 
@@ -188,7 +198,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // remove from level pointers if first/last
     // TODO assert flag and handle with if
     DLOG_ASSERT(levels.count(target->price));
-    Level * const level = levels.at(target->price);
+    Level * const level = levels[target->price];
     DLOG_ASSERT(level);
     if (level->first == target) {
         level->first = target->next;
