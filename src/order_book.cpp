@@ -124,7 +124,7 @@ bool OrderBook::addOrder(Order* newOrder) {
         return false;
     }
     // add order to id,order map
-    auto const orderRes = orders.insert(std::pair(newOrder->referenceNumber, newOrder));
+    [[maybe_unused]] auto const orderRes = orders.insert(std::pair(newOrder->referenceNumber, newOrder));
     DLOG_ASSERT(orderRes.second);
     auto & levels = newOrder->side == ITCH::Side::BUY ? levelBids : levelOffers;
     // create level if doesnt exist
