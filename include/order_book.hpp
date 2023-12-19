@@ -35,29 +35,29 @@ struct Level {
 // price-time LOB
 class OrderBook {
 public:
-    void handleSystemEventMessage(ITCH::SystemEventMessage const & msg);
-    void handleStockDirectoryMessage(ITCH::StockDirectoryMessage const & msg);
-    void handleStockTradingActionMessage(ITCH::StockTradingActionMessage const & msg);
-    void handleRegSHORestrictionMessage(ITCH::RegSHORestrictionMessage const & msg);
-    void handleMarketParticipantPositionMessage(ITCH::MarketParticipantPositionMessage const & msg);
-    void handleMWCBDeclineLevelMessage(ITCH::MWCBDeclineLevelMessage const & msg);
-    void handleMWCBStatusMessage(ITCH::MWCBStatusMessage const & msg);
-    void handleIPOQuotingPeriodUpdateMessage(ITCH::IPOQuotingPeriodUpdateMessage const & msg);
-    void handleLULDAuctionCollarMessage(ITCH::LULDAuctionCollarMessage const & msg);
-    void handleOperationalHaltMessage(ITCH::OperationalHaltMessage const & msg);
-    void handleAddOrderMessage(ITCH::AddOrderMessage const & msg);
-    void handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributionMessage const & msg);
-    void handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg);
-    void handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const & msg);
-    void handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg);
-    void handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg);
-    void handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg);
-    void handleTradeMessage(ITCH::TradeMessage const & msg);
-    void handleCrossTradeMessage(ITCH::CrossTradeMessage const & msg);
-    void handleBrokenTradeMessage(ITCH::BrokenTradeMessage const & msg);
-    void handleNOIIMessage(ITCH::NOIIMessage const & msg);
-    void handleRetailInterestMessage(ITCH::RetailInterestMessage const & msg);
-    void handleDirectListingWithCapitalRaisePriceDiscoveryMessage(ITCH::DirectListingWithCapitalRaisePriceDiscoveryMessage const & msg);
+    void handleSystemEventMessage(ITCH::SystemEventMessage const &);
+    void handleStockDirectoryMessage(ITCH::StockDirectoryMessage const &);
+    void handleStockTradingActionMessage(ITCH::StockTradingActionMessage const &);
+    void handleRegSHORestrictionMessage(ITCH::RegSHORestrictionMessage const &);
+    void handleMarketParticipantPositionMessage(ITCH::MarketParticipantPositionMessage const &);
+    void handleMWCBDeclineLevelMessage(ITCH::MWCBDeclineLevelMessage const &);
+    void handleMWCBStatusMessage(ITCH::MWCBStatusMessage const &);
+    void handleIPOQuotingPeriodUpdateMessage(ITCH::IPOQuotingPeriodUpdateMessage const &);
+    void handleLULDAuctionCollarMessage(ITCH::LULDAuctionCollarMessage const &);
+    void handleOperationalHaltMessage(ITCH::OperationalHaltMessage const &);
+    void handleAddOrderMessage(ITCH::AddOrderMessage const &);
+    void handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributionMessage const &);
+    void handleOrderExecutedMessage(ITCH::OrderExecutedMessage const &);
+    void handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const &);
+    void handleOrderCancelMessage(ITCH::OrderCancelMessage const &);
+    void handleOrderDeleteMessage(ITCH::OrderDeleteMessage const &);
+    void handleOrderReplaceMessage(ITCH::OrderReplaceMessage const &);
+    void handleTradeMessage(ITCH::TradeMessage const &);
+    void handleCrossTradeMessage(ITCH::CrossTradeMessage const &);
+    void handleBrokenTradeMessage(ITCH::BrokenTradeMessage const &);
+    void handleNOIIMessage(ITCH::NOIIMessage const &);
+    void handleRetailInterestMessage(ITCH::RetailInterestMessage const &);
+    void handleDirectListingWithCapitalRaisePriceDiscoveryMessage(ITCH::DirectListingWithCapitalRaisePriceDiscoveryMessage const &);
 
     uint32_t getLimitVolume(char side, uint32_t limitprice) const; // keep track Level obj
     uint32_t getBestBid() const;   // largest map
