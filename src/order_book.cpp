@@ -143,8 +143,7 @@ bool OrderBook::addOrder(Order* newOrder) {
         Level * const newLevel = levelsmem.construct(newOrder->price);
         DLOG_ASSERT(newLevel);
         // insert into price,level map
-        auto const levelRes = levels.insert(std::pair(newLevel->price, newLevel));
-        (void)levelRes;
+        [[maybe_unused]] auto const levelRes = levels.insert(std::pair(newLevel->price, newLevel));
         DLOG_ASSERT(levelRes.second);
 
         // insert level into corresponding bid/ask tree
