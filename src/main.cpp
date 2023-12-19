@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <boost/pool/object_pool.hpp>
+#include <sparsehash/dense_hash_map>
 
 #define BENCH true
 
@@ -17,7 +18,9 @@ int main(int argc, char** argv) {
 
     ITCH::Reader reader(argv[1], 16384);
     boost::object_pool<OrderBook> booksmem;
-    std::unordered_map<uint16_t, OrderBook*> books;
+    google::dense_hash_map<uint16_t, OrderBook*> books;
+    books.set_empty_key(0);
+    books.set_deleted_key(-1);
     char const * messageData;
 
 #if BENCH
