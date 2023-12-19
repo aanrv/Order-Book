@@ -2,7 +2,6 @@
 #include "itch_reader.hpp"
 #include "order_book.hpp"
 #include <iostream>
-#include <unordered_map>
 #include <boost/pool/object_pool.hpp>
 #include <sparsehash/dense_hash_map>
 
