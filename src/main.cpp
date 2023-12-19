@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     using std::chrono::high_resolution_clock;
     using std::chrono::duration_cast;
     using std::chrono::duration;
-    using std::chrono::seconds;
+    using std::chrono::milliseconds;
     long long messageCount = 0;
     auto t1 = high_resolution_clock::now();
 #endif
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
 
 #if BENCH
     auto t2 = high_resolution_clock::now();
-    std::cout << "processed " << messageCount << " messages (" << reader.getTotalBytesRead()  << " bytes) in " << duration_cast<seconds>(t2 - t1).count() << " seconds" << std::endl;
+    std::cout << "processed " << messageCount << " messages (" << reader.getTotalBytesRead()  << " bytes) in " << duration_cast<milliseconds>(t2 - t1).count() << " milliseconds" << std::endl;
 #endif
 }
 
