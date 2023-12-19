@@ -3,6 +3,7 @@
 #include "order_book.hpp"
 #include <iostream>
 #include <unordered_map>
+#include <boost/pool/object_pool.hpp>
 
 #define BENCH true
 
@@ -15,7 +16,8 @@ int main(int argc, char** argv) {
     std::cout << "Processing " << argv[1] << std::endl;
 
     ITCH::Reader reader(argv[1], 16384);
-    std::unordered_map<uint16_t, OrderBook> books;
+    boost::object_pool<OrderBook> booksmem;
+    std::unordered_map<uint16_t, OrderBook*> books;
     char const * messageData;
 
 #if BENCH
@@ -33,37 +35,45 @@ int main(int argc, char** argv) {
         switch (messageType) {
             [[likely]] case ITCH::AddOrderMessageType: {
                 ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);
-                books[m.stockLocate].handleAddOrderMessage(m);
+                if (!books.count(m.stockLocate)) {
+                    OrderBook * const newBook = booksmem.construct();
+                    books.insert(std::pair(m.stockLocate, newBook));
+                }
+                books[m.stockLocate]->handleAddOrderMessage(m);
                 break;
             }
             case ITCH::AddOrderMPIDAttributionMessageType: {
                 ITCH::AddOrderMPIDAttributionMessage m = ITCH::Parser::createAddOrderMPIDAttributionMessage(messageData);
-                books[m.stockLocate].handleAddOrderMPIDAttributionMessage(m);
+                if (!books.count(m.stockLocate)) {
+                    OrderBook * const newBook = booksmem.construct();
+                    books.insert(std::pair(m.stockLocate, newBook));
+                }
+                books[m.stockLocate]->handleAddOrderMPIDAttributionMessage(m);
                 break;
             }
 /*            case ITCH::OrderExecutedMessageType: {
                 ITCH::OrderExecutedMessage m = ITCH::Parser::createOrderExecutedMessage(messageData);
-                books[m.stockLocate].handleOrderExecutedMessage(m);
+                books[m.stockLocate]->handleOrderExecutedMessage(m);
                 break;
             }
             case ITCH::OrderExecutedWithPriceMessageType: {
                 ITCH::OrderExecutedWithPriceMessage m = ITCH::Parser::createOrderExecutedWithPriceMessage(messageData);
-                books[m.stockLocate].handleOrderExecutedWithPriceMessage(m);
+                books[m.stockLocate]->handleOrderExecutedWithPriceMessage(m);
                 break;
             }*/
             case ITCH::OrderCancelMessageType: {
                 ITCH::OrderCancelMessage m = ITCH::Parser::createOrderCancelMessage(messageData);
-                books[m.stockLocate].handleOrderCancelMessage(m);
+                books[m.stockLocate]->handleOrderCancelMessage(m);
                 break;
             }
             [[likely]] case ITCH::OrderDeleteMessageType: {
                 ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
-                books[m.stockLocate].handleOrderDeleteMessage(m);
+                books[m.stockLocate]->handleOrderDeleteMessage(m);
                 break;
             }
             [[likely]] case ITCH::OrderReplaceMessageType: {
                 ITCH::OrderReplaceMessage m = ITCH::Parser::createOrderReplaceMessage(messageData);
-                books[m.stockLocate].handleOrderReplaceMessage(m);
+                books[m.stockLocate]->handleOrderReplaceMessage(m);
                 break;
             }
 /*            case ITCH::TradeMessageType: {
