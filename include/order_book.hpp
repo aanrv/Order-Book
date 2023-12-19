@@ -58,9 +58,9 @@ public:
     void handleRetailInterestMessage(ITCH::RetailInterestMessage const & msg);
     void handleDirectListingWithCapitalRaisePriceDiscoveryMessage(ITCH::DirectListingWithCapitalRaisePriceDiscoveryMessage const & msg);
 
-    uint32_t getLimitVolume(uint32_t limitprice) const; // keep track Level obj
-    Order const * getBestBid() const;   // largest map
-    Order const * getBestAsk() const;   // lowest map
+    uint32_t getLimitVolume(char side, uint32_t limitprice) const; // keep track Level obj
+    uint32_t getBestBid() const;   // largest map
+    uint32_t getBestAsk() const;   // lowest map
     uint32_t getLastExecutedPrice() const;  // keep track in book
     uint32_t getLastExecutedSize() const;   // keep track in book
 

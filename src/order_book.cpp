@@ -176,6 +176,7 @@ bool OrderBook::addOrder(Order* newOrder) {
         newOrder->prev = orderLevel->last;
         orderLevel->last = newOrder;
     }
+    orderLevel->limitVolume += newOrder->shares;
     DLOG(INFO) << "ADD added order " << newOrder->referenceNumber << " to level " << orderLevel;
     return true;
 }
@@ -234,11 +235,20 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     return true;
 }
 
+
+uint32_t OrderBook::getLimitVolume(char side, uint32_t price) const {
+    auto const & levelSideMap = side == ITCH::Side::BUY ? levelBids : levelOffers;
+    Level const * level = levelSideMap.find(price)->second;
+    return level->limitVolume;
+}
+
+uint32_t OrderBook::getBestBid() const {
+   return bids.rbegin()->second->price;
+}
+uint32_t OrderBook::getBestAsk() const {
+   return offers.begin()->second->price;
+}
 /*
-uint32_t OrderBook::getLimitVolume(uint32_t price) const;
-Order const * OrderBook::getBestBid() const;
-Order const * OrderBook::getBestAsk() const;
 uint32_t OrderBook::getLastExecutedPrice() const;
 uint32_t OrderBook::getLastExecutedSize() const;
 */
-
