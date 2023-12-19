@@ -29,5 +29,5 @@ itch_reader.o:	$(SRC)/itch_reader.cpp
 	$(CC) -std=$(CPPVER) -c -I$(INC) $(FLAGS) $(SRC)/itch_reader.cpp -o $(SRC)/itch_reader.o
 
 clean:
-	rm --verbose --force $(SRC)/*.o *.out order-book
+	rm --verbose --force $(SRC)/*.o *.out callgrind.out.* order-book
 
