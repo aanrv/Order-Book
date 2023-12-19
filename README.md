@@ -16,7 +16,9 @@ A memory pool library for C++.
 
 `std::unordered_map` alternative.
 
-- [glog](https://github.com/google/glog) Follow the instructions on the Github Repo, or `sudo apt-get install libgoogle-glog-dev`
+- [glog](https://github.com/google/glog)
+
+`sudo apt-get install libgoogle-glog-dev`
 
 Logging library with debug-only logs/asserts (though I have my doubts).
 
