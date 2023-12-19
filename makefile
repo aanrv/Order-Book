@@ -11,10 +11,10 @@ all: FLAGS += $(OPTI)
 all: order-book
 
 profile: FLAGS += $(PROF)
-profile: all
+profile: order-book
 
 debug: FLAGS += $(DEBUG)
-debug: all
+debug: order-book
 
 order-book: itch_reader.o order_book.o main.o
 	$(CC) -std=$(CPPVER) $(FLAGS) $(SRC)/itch_reader.o $(SRC)/order_book.o $(SRC)/main.o -o order-book -lglog
