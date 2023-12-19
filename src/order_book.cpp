@@ -199,6 +199,7 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // TODO assert flag and handle with if
     DLOG_ASSERT(levels.count(target->price));
     Level * const level = levels[target->price];
+    level->limitVolume -= target->shares;
     DLOG_ASSERT(level);
     if (level->first == target) {
         level->first = target->next;
@@ -238,14 +239,16 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
 uint32_t OrderBook::getLimitVolume(char side, uint32_t price) const {
     auto const & levelSideMap = side == ITCH::Side::BUY ? levelBids : levelOffers;
     Level const * level = levelSideMap.find(price)->second;
-    return level->limitVolume;
+    return level ? level->limitVolume : 0;
 }
 
 uint32_t OrderBook::getBestBid() const {
-   return bids.rbegin()->second->price;
+    auto const & it = bids.rbegin();
+    return it != bids.rend() ? bids.rbegin()->second->price : 0;
 }
 uint32_t OrderBook::getBestAsk() const {
-   return offers.begin()->second->price;
+    auto const & it = offers.begin();
+    return it != offers.end() ? offers.begin()->second->price : 0;
 }
 /*
 uint32_t OrderBook::getLastExecutedPrice() const;
