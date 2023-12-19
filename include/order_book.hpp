@@ -8,6 +8,7 @@
 #include <tuple>
 #include <boost/pool/object_pool.hpp>
 #include <sparsehash/dense_hash_map>
+#define NDEBUG
 
 struct Order {
     uint64_t    referenceNumber;
