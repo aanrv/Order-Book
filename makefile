@@ -7,8 +7,8 @@ INC		= $(PWD)/include
 PROF	= -O0 -pg
 DEBUG	= -g
 
-all: FLAGS += $(OPTI)
-all: order-book
+rel: FLAGS += $(OPTI)
+rel: order-book
 
 profile: FLAGS += $(PROF)
 profile: order-book
