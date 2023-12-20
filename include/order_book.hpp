@@ -72,8 +72,8 @@ private:
     void deleteOrder(uint64_t orderReferenceNumber);
 
     // <price, Level> sorted log(n)
-    std::map<uint32_t, Level*> bids;
-    std::map<uint32_t, Level*> offers;
+    std::map<uint32_t, Level*> sortedBidLimits;
+    std::map<uint32_t, Level*> sortedOfferLimits;
 
     // quick access
     // <referenceNumber, Order>

@@ -149,8 +149,8 @@ void OrderBook::addOrder(Order* newOrder) {
 
         // insert level into corresponding bid/ask tree
         auto & targetMap = newOrder->side == ITCH::Side::BUY
-            ? bids
-            : offers;
+            ? sortedBidLimits
+            : sortedOfferLimits;
         [[maybe_unused]] auto const priceRes = targetMap.insert(std::pair(newLevel->price, newLevel));
         DLOG_ASSERT(priceRes.second);
         DLOG(INFO) << "LVL added " << *newLevel;
@@ -188,7 +188,7 @@ void OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
         target->next->prev = target->prev;
     }
 
-    auto & levels = target->side == ITCH::Side::BUY ? bids : offers;
+    auto & levels = target->side == ITCH::Side::BUY ? sortedBidLimits : sortedOfferLimits;
     // remove from level pointers if first/last
     // TODO assert flag and handle with if
     DLOG_ASSERT(levels.count(target->price));
@@ -230,12 +230,12 @@ uint32_t OrderBook::getLimitVolume(char side, uint32_t price) const {
 }
 
 uint32_t OrderBook::getBestBid() const {
-    auto const & it = bids.rbegin();
-    return it != bids.rend() ? bids.rbegin()->second->price : 0;
+    auto const & it = sortedBidLimits.rbegin();
+    return it != sortedBidLimits.rend() ? sortedBidLimits.rbegin()->second->price : 0;
 }
 uint32_t OrderBook::getBestAsk() const {
-    auto const & it = offers.begin();
-    return it != offers.end() ? offers.begin()->second->price : 0;
+    auto const & it = sortedOfferLimits.begin();
+    return it != sortedOfferLimits.end() ? sortedOfferLimits.begin()->second->price : 0;
 }
 /*
 uint32_t OrderBook::getLastExecutedPrice() const;
