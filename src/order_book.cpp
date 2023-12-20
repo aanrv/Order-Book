@@ -124,15 +124,8 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
     }
 }
 
-// TODO change throws to return false once done testing
-// adds order to id map and level obj
-// creates level obj if needed
-// if any failures, state is reverted, order level objects destroyed
 bool OrderBook::addOrder(Order* newOrder) {
-    if (newOrder->side != ITCH::Side::BUY && newOrder->side != ITCH::Side::SELL) {
-        DLOG(ERROR) << "ERR unable to add order " << *newOrder << ", invalid side";
-        return false;
-    }
+    DLOG_ASSERT(newOrder->side == ITCH::Side::BUY || newOrder->side == ITCH::Side::SELL);
     // add order to id,order map
     [[maybe_unused]] auto const orderRes = orders.insert(std::pair(newOrder->referenceNumber, newOrder));
     DLOG_ASSERT(orderRes.second);
@@ -150,33 +143,24 @@ bool OrderBook::addOrder(Order* newOrder) {
         auto & targetMap = newOrder->side == ITCH::Side::BUY
             ? bids
             : offers;
-        if (!targetMap.insert(std::pair(newLevel->price, newLevel)).second) {
-            DLOG(ERROR) << "---";
-            DLOG(ERROR) << *newLevel;
-            DLOG(ERROR) << *newOrder;
-            throw std::runtime_error("failed to add level to bids offers");
-        }
+        [[maybe_unused]] auto const priceRes = targetMap.insert(std::pair(newLevel->price, newLevel));
+        DLOG_ASSERT(priceRes.second);
         DLOG(INFO) << "LVL added " << *newLevel;
-    }
-
-    DLOG_ASSERT(levels.count(newOrder->price));
-
-    // get level for price and add order to end of level
-    Level * const orderLevel = levels[newOrder->price];
-    if (!orderLevel->last) {
-        // TODO temp check
-        DLOG_ASSERT(!orderLevel->first);
         // if level is empty, inserted order is both first and last
-        orderLevel->first = newOrder;
-        orderLevel->last = newOrder;
+        newLevel->first = newOrder;
+        newLevel->last = newOrder;
+        newLevel->limitVolume += newOrder->shares;
+        DLOG(INFO) << "ADD added order " << newOrder->referenceNumber << " to level " << newLevel;
     } else {
+        // get level for price and add order to end of level
+        Level * const orderLevel = levels[newOrder->price];
         // otherwise just append and update last
         orderLevel->last->next = newOrder;
         newOrder->prev = orderLevel->last;
         orderLevel->last = newOrder;
+        orderLevel->limitVolume += newOrder->shares;
+        DLOG(INFO) << "ADD added order " << newOrder->referenceNumber << " to level " << orderLevel;
     }
-    orderLevel->limitVolume += newOrder->shares;
-    DLOG(INFO) << "ADD added order " << newOrder->referenceNumber << " to level " << orderLevel;
     return true;
 }
 
