@@ -70,7 +70,7 @@ public:
 private:
 
     void addOrder(Order*);
-    bool deleteOrder(uint64_t orderReferenceNumber);
+    void deleteOrder(uint64_t orderReferenceNumber);
 
     // <price, Level> sorted log(n)
     std::map<uint32_t, Level*> bids;

@@ -98,7 +98,9 @@ void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
 
 void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
     DLOG(INFO) << msg;
+    DLOG_ASSERT(orders.count(msg.orderReferenceNumber) == 1);
     deleteOrder(msg.orderReferenceNumber);
+    DLOG_ASSERT(orders.count(msg.orderReferenceNumber) == 0);
 }
 
 void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg) {
@@ -118,9 +120,11 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
 
     Order * const newOrder = ordersmem.construct(orderArgs);
     DLOG_ASSERT(newOrder);
-    if (!deleteOrder(msg.originalOrderReferenceNumber)) {
-        ordersmem.destroy(newOrder);
-    }
+
+    DLOG_ASSERT(orders.count(msg.originalOrderReferenceNumber) == 1);
+    deleteOrder(msg.originalOrderReferenceNumber);
+    DLOG_ASSERT(orders.count(msg.originalOrderReferenceNumber) == 0);
+
     DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 0);
     addOrder(newOrder);
     DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 1);
@@ -165,7 +169,7 @@ void OrderBook::addOrder(Order* newOrder) {
     }
 }
 
-bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
+void OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     DLOG_ASSERT(orders.count(orderReferenceNumber));
     Order * const target = orders[orderReferenceNumber];
     // remove order from map
@@ -210,7 +214,6 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     }
     DLOG(INFO) << "DEL deleted order " << target->referenceNumber << " from level " << level;
     ordersmem.destroy(target);
-    return true;
 }
 
 
