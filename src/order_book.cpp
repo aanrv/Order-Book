@@ -89,7 +89,8 @@ void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPrice
 }*/
 void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
     DLOG(INFO) << msg;
-    Order * o = orders[msg.orderReferenceNumber];
+    Order * o = orders.find(msg.orderReferenceNumber)->second;
+    DLOG_ASSERT(o);
     DLOG_ASSERT(msg.cancelledShares < o->shares);
     o->shares -= msg.cancelledShares;
     auto levels = o->side == ITCH::Side::BUY ? levelBids : levelOffers;
@@ -106,7 +107,8 @@ void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
 void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg) {
     DLOG(INFO) << msg;
     DLOG_ASSERT(orders.count(msg.originalOrderReferenceNumber));
-    Order const * oldOrder = orders[msg.originalOrderReferenceNumber];
+    Order const * oldOrder = orders.find(msg.originalOrderReferenceNumber)->second;
+    DLOG_ASSERT(oldOrder);
     auto orderArgs = std::make_tuple(
         msg.newOrderReferenceNumber,
         oldOrder->stockLocate,
@@ -159,7 +161,8 @@ void OrderBook::addOrder(Order* newOrder) {
         DLOG(INFO) << "ADD added order " << newOrder->referenceNumber << " to level " << newLevel;
     } else {
         // get level for price and add order to end of level
-        Level * const orderLevel = levels[newOrder->price];
+        Level * const orderLevel = levels.find(newOrder->price)->second;
+        DLOG_ASSERT(orderLevel);
         // otherwise just append and update last
         orderLevel->last->next = newOrder;
         newOrder->prev = orderLevel->last;
@@ -171,7 +174,8 @@ void OrderBook::addOrder(Order* newOrder) {
 
 void OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     DLOG_ASSERT(orders.count(orderReferenceNumber));
-    Order * const target = orders[orderReferenceNumber];
+    Order * const target = orders.find(orderReferenceNumber)->second;
+    DLOG_ASSERT(target);
     // remove order from map
     [[maybe_unused]] size_t orderEraseNum = orders.erase(orderReferenceNumber);
     DLOG_ASSERT(orderEraseNum);
@@ -188,7 +192,8 @@ void OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     // remove from level pointers if first/last
     // TODO assert flag and handle with if
     DLOG_ASSERT(levels.count(target->price));
-    Level * const level = levels[target->price];
+    Level * const level = levels.find(target->price)->second;
+    DLOG_ASSERT(level);
     level->limitVolume -= target->shares;
     DLOG_ASSERT(level);
     if (level->first == target) {
@@ -220,6 +225,7 @@ void OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
 uint32_t OrderBook::getLimitVolume(char side, uint32_t price) const {
     auto const & levelSideMap = side == ITCH::Side::BUY ? levelBids : levelOffers;
     Level const * level = levelSideMap.find(price)->second;
+    DLOG_ASSERT(level);
     return level ? level->limitVolume : 0;
 }
 
