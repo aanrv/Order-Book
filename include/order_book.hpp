@@ -69,7 +69,7 @@ public:
 
 private:
 
-    bool addOrder(Order*);
+    void addOrder(Order*);
     bool deleteOrder(uint64_t orderReferenceNumber);
 
     // <price, Level> sorted log(n)

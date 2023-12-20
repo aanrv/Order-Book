@@ -54,9 +54,9 @@ void OrderBook::handleAddOrderMessage(ITCH::AddOrderMessage const & msg) {
     // add Order* to unordered_map
     Order * const newOrder = ordersmem.construct(orderArgs);
     DLOG_ASSERT(newOrder);
-    if (!addOrder(newOrder)) {
-        ordersmem.destroy(newOrder);
-    }
+    DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 0);
+    addOrder(newOrder);
+    DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 1);
 }
 
 void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributionMessage const & msg) {
@@ -76,9 +76,9 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
     // add Order* to unordered_map
     Order * const newOrder = ordersmem.construct(orderArgs);
     DLOG_ASSERT(newOrder);
-    if (!addOrder(newOrder)) {
-        ordersmem.destroy(newOrder);
-    }
+    DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 0);
+    addOrder(newOrder);
+    DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 1);
 }
 
 /*void OrderBook::handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg) {
@@ -119,12 +119,12 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
     if (!deleteOrder(msg.originalOrderReferenceNumber)) {
         ordersmem.destroy(newOrder);
     }
-    if (!addOrder(newOrder)) {
-        ordersmem.destroy(newOrder);
-    }
+    DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 0);
+    addOrder(newOrder);
+    DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 1);
 }
 
-bool OrderBook::addOrder(Order* newOrder) {
+void OrderBook::addOrder(Order* newOrder) {
     DLOG_ASSERT(newOrder->side == ITCH::Side::BUY || newOrder->side == ITCH::Side::SELL);
     // add order to id,order map
     [[maybe_unused]] auto const orderRes = orders.insert(std::pair(newOrder->referenceNumber, newOrder));
@@ -161,7 +161,6 @@ bool OrderBook::addOrder(Order* newOrder) {
         orderLevel->limitVolume += newOrder->shares;
         DLOG(INFO) << "ADD added order " << newOrder->referenceNumber << " to level " << orderLevel;
     }
-    return true;
 }
 
 bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
