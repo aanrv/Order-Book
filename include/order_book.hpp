@@ -3,7 +3,6 @@
 
 #include "itch_common.hpp"
 #include <map>
-#include <list>
 #include <cstdint>
 #include <tuple>
 #include <boost/pool/object_pool.hpp>

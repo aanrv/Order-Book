@@ -4,6 +4,7 @@
 #include <fcntl.h>                  // open
 #include <unistd.h>                 // read
 #include <endian.h>                 // be16toh
+#include <stdexcept>
 
 #define ASSERT  false
 #if ASSERT
@@ -72,7 +73,7 @@ char const * ITCH::Reader::nextMessage() {
         ssize_t readBytes = read(fdItch, buffer + offset, bufferSize - offset);
         if (readBytes <= 0) {
             if (readBytes == 0) return nullptr;
-            if (readBytes == -1) { delete[] buffer; throw std::ios_base::failure("Failed to read from file"); }
+            if (readBytes == -1) { delete[] buffer; throw std::runtime_error("Failed to read from file"); }
         }
         validBytes = readBytes + offset;
         _buffer = buffer;
