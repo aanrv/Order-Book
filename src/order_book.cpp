@@ -92,6 +92,8 @@ void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
     Order * o = orders[msg.orderReferenceNumber];
     DLOG_ASSERT(msg.cancelledShares < o->shares);
     o->shares -= msg.cancelledShares;
+    auto levels = o->side == ITCH::Side::BUY ? levelBids : levelOffers;
+    levels[o->price]->limitVolume -= msg.cancelledShares;
 }
 
 void OrderBook::handleOrderDeleteMessage(ITCH::OrderDeleteMessage const & msg) {
@@ -167,7 +169,8 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     DLOG_ASSERT(orders.count(orderReferenceNumber));
     Order * const target = orders[orderReferenceNumber];
     // remove order from map
-    if (!orders.erase(orderReferenceNumber)) throw std::runtime_error("deleteOrder: found order but failed to erase order " + std::to_string(orderReferenceNumber));
+    [[maybe_unused]] size_t orderEraseNum = orders.erase(orderReferenceNumber);
+    DLOG_ASSERT(orderEraseNum);
 
     // remove order from level list, connect remaining nodes
     if (target->prev) {
@@ -192,25 +195,17 @@ bool OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
     }
     // remove and destroy level if empty
     // consider not destroying when empty, more memory but better performance if more orders with same price come in
-    if (!level->first && !level->last) {
+    if (!level->limitVolume) {
         DLOG(INFO) << "LVL deleting level " << level->price << " side " << target->side;
-        // TODO handle properly
-        if (!levels.erase(level->price)) {
-            DLOG(ERROR) << "ERR deleteOrder: failed to erase level for destroy " << level->price;
-            throw std::runtime_error("failed to erase level");
-        }
-
+        [[maybe_unused]] size_t levelEraseNum = levels.erase(level->price);
+        DLOG_ASSERT(levelEraseNum);
         DLOG_ASSERT(target->side == ITCH::Side::BUY || target->side == ITCH::Side::SELL);
         auto & targetMap = target->side == ITCH::Side::BUY
             ? levelBids
             : levelOffers;
         DLOG(INFO) << "LVL deleting from map " << target->side << " " << target->price;
-        if (!targetMap.erase(level->price)) {
-            DLOG(ERROR) << "---";
-            DLOG(ERROR) << *level;
-            DLOG(ERROR) << *target;
-            throw std::runtime_error("failed to delete level from bids offers");
-        }
+        [[maybe_unused]] size_t priceEraseNum = targetMap.erase(level->price);
+        DLOG_ASSERT(priceEraseNum);
         levelsmem.destroy(level);
     }
     DLOG(INFO) << "DEL deleted order " << target->referenceNumber << " from level " << level;

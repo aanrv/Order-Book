@@ -105,7 +105,7 @@ inline OStream& operator<<(OStream& os, Order const & o) {
 
 template <typename OStream>
 inline OStream& operator<<(OStream& os, Level const & l) {
-    os << "Level: " << &l << " " << "first: " << l.first << " last: " << l.last << std::endl;
+    os << "Level: " << &l << " " << "first: " << l.first << " last: " << l.last << " volume: " << l.limitVolume << std::endl;
     Order const * it = l.first;
     std::string prefix = ">";
     while (it) {
