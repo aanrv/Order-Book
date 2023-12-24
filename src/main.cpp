@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
                 books[m.stockLocate]->handleAddOrderMessage(m);
                 break;
             }
-            case ITCH::AddOrderMPIDAttributionMessageType: {
+            [[unlikely]] case ITCH::AddOrderMPIDAttributionMessageType: {
                 ITCH::AddOrderMPIDAttributionMessage m = ITCH::Parser::createAddOrderMPIDAttributionMessage(messageData);
                 if (!books.count(m.stockLocate)) {
                     OrderBook * const newBook = booksmem.construct();
@@ -53,16 +53,6 @@ int main(int argc, char** argv) {
                 books[m.stockLocate]->handleAddOrderMPIDAttributionMessage(m);
                 break;
             }
-/*            case ITCH::OrderExecutedMessageType: {
-                ITCH::OrderExecutedMessage m = ITCH::Parser::createOrderExecutedMessage(messageData);
-                books[m.stockLocate]->handleOrderExecutedMessage(m);
-                break;
-            }
-            case ITCH::OrderExecutedWithPriceMessageType: {
-                ITCH::OrderExecutedWithPriceMessage m = ITCH::Parser::createOrderExecutedWithPriceMessage(messageData);
-                books[m.stockLocate]->handleOrderExecutedWithPriceMessage(m);
-                break;
-            }*/
             case ITCH::OrderCancelMessageType: {
                 ITCH::OrderCancelMessage m = ITCH::Parser::createOrderCancelMessage(messageData);
                 books[m.stockLocate]->handleOrderCancelMessage(m);
@@ -73,23 +63,11 @@ int main(int argc, char** argv) {
                 books[m.stockLocate]->handleOrderDeleteMessage(m);
                 break;
             }
-            [[likely]] case ITCH::OrderReplaceMessageType: {
+            case ITCH::OrderReplaceMessageType: {
                 ITCH::OrderReplaceMessage m = ITCH::Parser::createOrderReplaceMessage(messageData);
                 books[m.stockLocate]->handleOrderReplaceMessage(m);
                 break;
             }
-/*            case ITCH::TradeMessageType: {
-                ITCH::TradeMessage m = ITCH::Parser::createTradeMessage(messageData);
-                break;
-            }
-            [[unlikely]] case ITCH::CrossTradeMessageType: {
-                ITCH::CrossTradeMessage m = ITCH::Parser::createCrossTradeMessage(messageData);
-                break;
-            }
-            [[unlikely]] case ITCH::BrokenTradeMessageType: {
-                ITCH::BrokenTradeMessage m = ITCH::Parser::createBrokenTradeMessage(messageData);
-                break;
-            }*/
             default: {
                 break;
             }

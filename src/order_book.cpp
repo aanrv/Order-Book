@@ -29,7 +29,6 @@ OrderBook::OrderBook() {
     orders.set_deleted_key(-1);
     levelBids.set_deleted_key(-1);
     levelOffers.set_deleted_key(-1);
-
 }
 
 /*
@@ -81,19 +80,13 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
     DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 1);
 }
 
-/*void OrderBook::handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg) {
-    DLOG(INFO) << msg;
-}
-void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const & msg) {
-    DLOG(INFO) << msg;
-}*/
 void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
     DLOG(INFO) << msg;
     Order * o = orders.find(msg.orderReferenceNumber)->second;
     DLOG_ASSERT(o);
     DLOG_ASSERT(msg.cancelledShares < o->shares);
     o->shares -= msg.cancelledShares;
-    auto levels = o->side == ITCH::Side::BUY ? levelBids : levelOffers;
+    auto & levels = o->side == ITCH::Side::BUY ? levelBids : levelOffers;
     levels[o->price]->limitVolume -= msg.cancelledShares;
 }
 

@@ -1,6 +1,6 @@
 # Order-Book
 
-A high speed ITCH Trade data parser and an efficient Limit Order Book.
+A high speed NASDAQ ITCH trade data parser and Limit Order Book.
 
 This project will serve as a playground for exploring C++ performance and efficiency ideas.
 
@@ -8,9 +8,9 @@ This project will serve as a playground for exploring C++ performance and effici
 
 - [Boost.Pool](https://www.boost.org/doc/libs/1_75_0/libs/pool/doc/html/index.html)
 
-`sudo apt-get install libboost-all-dev`
-
 A memory pool library for C++.
+
+`apt-get install libboost-all-dev`
 
 - [sparsehash](https://github.com/sparsehash/sparsehash)
 
@@ -18,9 +18,9 @@ A memory pool library for C++.
 
 - [glog](https://github.com/google/glog)
 
-`sudo apt-get install libgoogle-glog-dev`
-
 Logging library with debug-only logs/asserts (though I have my doubts).
+
+`apt-get install libgoogle-glog-dev`
 
 # Build and Usage
 
@@ -50,7 +50,7 @@ The ITCH 5.0 data files are +10GB binary files.
 - to avoid excessive I/O, the files are read in large chunks at a time
 - Memory is only allocated once and reused when storing these chunks
 
-The file reader itself processes +100 million messages per second and has very low overhead.
+The file reader itself processes +100 million messages per second and has very little overhead.
 
 ```
 aanrv@debianssd:~/Documents/Order-Book$ ./order-book spec/12302019.NASDAQ_ITCH50  
@@ -76,11 +76,11 @@ Del: 114360997
 Rpl: 21639067
 ```
 
-- To avoid allocating/deallocating hundreds of millions of times, Boost's memory pool ([Boost.Pool](https://www.boost.org/doc/libs/1_75_0/libs/pool/doc/html/boost_pool/pool/interfaces.html)) was used. Seems to have removed memory management as a major bottleneck.
+- To avoid the overhead costs of allocating/deallocating orders hundreds of millions of times, Boost's memory pool ([Boost.Pool](https://www.boost.org/doc/libs/1_75_0/libs/pool/doc/html/boost_pool/pool/interfaces.html)) was used. Seems to have removed memory management as a major bottleneck.
 
 ![image](https://github.com/aanrv/Order-Book/assets/14251976/fdcb4bf4-ab87-426f-8b97-75da155ad8c6)
 
-- Levels require a sorted tree, so adding an order with a new limit is O(logm). But # of limits < # of orders by far (average of ~3 orders per limit), and this doesn't seem to be a bottleneck based on profiling.
+- Levels require a sorted tree so that L1 info is available in O(1), so adding an order with a new limit is O(logm). But # of limits < # of orders by far (average of ~5 orders per limit), and this doesn't seem to be a bottleneck based on profiling.
 
 ```
 aanrv@debianssd:~/Documents/Order-Book$ ./order-book spec/12302019.NASDAQ_ITCH50  
@@ -95,14 +95,14 @@ Processing spec/12302019.NASDAQ_ITCH50
 aanrv@debianssd:~/Documents/Order-Book$ ./order-book spec/12302019.NASDAQ_ITCH50  
 Using: std::unordered_map
 Processing spec/12302019.NASDAQ_ITCH50
-processed 268744780 messages (8251407909 bytes) in 245183 milliseconds
+processed 268744780 messages (8251407909 bytes) in 216493 milliseconds
 ```
 
 ```
 aanrv@debianssd:~/Documents/Order-Book$ ./order-book spec/12302019.NASDAQ_ITCH50
 Using: google::dense_hash_map
 Processing spec/12302019.NASDAQ_ITCH50
-processed 268744780 messages (8251407909 bytes) in 163401 milliseconds
+processed 268744780 messages (8251407909 bytes) in 148342 milliseconds
 ```
 
 # Further Improvements
