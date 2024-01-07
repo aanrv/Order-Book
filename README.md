@@ -27,7 +27,7 @@ Logging library with debug-only logs/asserts (though I have my doubts).
 - Build with `make rel`
 - Run with `./order-book <NASDAQ_ITCH_50_file>`
 
-For benchmarking, comment out all `DLOG`s in `src/order_book.cpp` as `DLOG_ASSERT` seems to be enforced even with `#define NDEBUG`.
+~~For benchmarking, comment out all `DLOG`s in `src/order_book.cpp` as `DLOG_ASSERT` seems to be enforced even with `#define NDEBUG`.~~ For benchmarking, the `DLOG_ASSERT` issue was [recently resolved](https://github.com/google/glog/pull/1035), just make sure you have the latest `glog` build. Otherwise, comment out all `DLOG*`s for benchmarking (`:%s/DLOG_ASSERT/\/\/DLOG/` in `vim`).
 
 # Design
 
