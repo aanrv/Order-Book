@@ -1,9 +1,8 @@
 # Order-Book
 
-A high speed NASDAQ ITCH trade data parser and Limit Order Book.
+A high speed NASDAQ ITCH trade data parser and Limit Order Book that processes ~10.8 million messages per second (~92ns latency).
 
 This project will serve as a playground for exploring C++ performance and efficiency ideas.
-
 # Dependencies
 
 - [Boost.Pool](https://www.boost.org/doc/libs/1_75_0/libs/pool/doc/html/index.html)
@@ -104,6 +103,14 @@ Using: google::dense_hash_map
 Processing spec/12302019.NASDAQ_ITCH50
 processed 268744780 messages (8251407909 bytes) in 148342 milliseconds
 ```
+
+Current optimized measurements show a latency of ~92ns:
+```
+aanrv@debianvm:~/Documents/Order-Book$ ./order-book spec/12302019.NASDAQ_ITCH50
+Processing spec/12302019.NASDAQ_ITCH50
+processed 268744780 messages (8251407909 bytes) in 24844 milliseconds
+```
+
 
 # Further Improvements
 
