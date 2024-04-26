@@ -5,7 +5,7 @@
 #include <boost/pool/object_pool.hpp>
 #include <sparsehash/dense_hash_map>
 
-#define BENCH true
+#define BENCH false
 
 #if BENCH
 #include <chrono>
@@ -13,7 +13,9 @@
 
 int main(int argc, char** argv) {
     if (argc < 2) { std::cout << "Usage: " << argv[0] << " itch_filename" << std::endl; return EXIT_FAILURE; }
+#if BENCH
     std::cout << "Processing " << argv[1] << std::endl;
+#endif
 
     ITCH::Reader reader(argv[1], 16384);
     boost::object_pool<OrderBook> booksmem;
@@ -81,5 +83,11 @@ int main(int argc, char** argv) {
     auto t2 = high_resolution_clock::now();
     std::cout << "processed " << messageCount << " messages (" << reader.getTotalBytesRead()  << " bytes) in " << duration_cast<milliseconds>(t2 - t1).count() << " milliseconds" << std::endl;
 #endif
+
+    const char * header = "address,referenceNumber,stockLocate,timestamp,side,shares,price,previous,next";
+    std::cout << header << std::endl;
+    for (const auto& [symbol, book] : books) {
+        std::cout << *book << std::endl;
+    }
 }
 

@@ -85,20 +85,23 @@ private:
 
     boost::object_pool<Order> ordersmem;
     boost::object_pool<Level> levelsmem;
+
+    template <typename OStream>
+    friend OStream& operator<<(OStream&, OrderBook const &);
 };
 
 template <typename OStream>
 inline OStream& operator<<(OStream& os, Order const & o) {
     os <<
-        "Order: " << &o <<
-        " referenceNumer " << o.referenceNumber <<
-        " stockLocate " << o.stockLocate <<
-        " timestamp " << o.timestamp <<
-        " side " << o.side <<
-        " shares " << o.shares <<
-        " price " << o.price <<
-        " prev " << o.prev <<
-        " next " << o.next;
+        &o << "," <<
+        o.referenceNumber << "," <<
+        o.stockLocate << "," <<
+        o.timestamp << "," <<
+        o.side << "," <<
+        o.shares << "," <<
+        o.price << "," <<
+        o.prev << "," <<
+        o.next;
     return os;
 }
 
@@ -111,6 +114,25 @@ inline OStream& operator<<(OStream& os, Level const & l) {
         os << prefix << it << ": " << *it << std::endl;
         prefix += ">";
         it = it->next;
+    }
+    return os;
+}
+
+template <typename OStream>
+inline OStream& operator<<(OStream& os, OrderBook const & b) {
+    for (const auto& [_, level] : b.levelBids) {
+        Order* o = level->first;
+        while (o) {
+            os << *o << '\n';
+            o = o->next;
+        }
+    }
+    for (const auto& [_, level] : b.levelOffers) {
+        Order* o = level->first;
+        while (o) {
+            os << *o << '\n';
+            o = o->next;
+        }
     }
     return os;
 }
