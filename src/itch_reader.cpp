@@ -261,3 +261,7 @@ ITCH::BrokenTradeMessage ITCH::Parser::createBrokenTradeMessage(char const * dat
     return ITCH::BrokenTradeMessage{messageType, stockLocate, timestamp, matchNumber};
 }
 
+ITCH::MessageType_t ITCH::Parser::getDataMessageType(char const * data) {
+    return data[messageTypeIndex];
+}
+

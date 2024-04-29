@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 #endif
 
     while((messageData = reader.nextMessage())) {
-        char messageType = messageData[ITCH::messageTypeIndex];
+        ITCH::MessageType_t messageType = ITCH::Parser::getDataMessageType(messageData);
         messageData += ITCH::messageHeaderLength;
         switch (messageType) {
             [[likely]] case ITCH::AddOrderMessageType: {

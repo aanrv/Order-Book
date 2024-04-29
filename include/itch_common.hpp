@@ -15,29 +15,30 @@ namespace Side {
     constexpr char SELL = 'S';
 }
 
-constexpr char SystemEventMessageType               = 'S';
-constexpr char StockDirectoryMessageType            = 'R';
-constexpr char StockTradingActionMessageType        = 'H';
-constexpr char RegSHORestrictionMessageType         = 'Y';
-constexpr char MarketParticipantPositionMessageType = 'L';
-constexpr char MWCBDeclineLevelMessageType          = 'V';
-constexpr char MWCBStatusMessageType                = 'W';
-constexpr char IPOQuotingPeriodUpdateMessageType    = 'K';
-constexpr char LULDAuctionCollarMessageType         = 'J';
-constexpr char OperationalHaltMessageType           = 'h';
-constexpr char AddOrderMessageType                  = 'A';
-constexpr char AddOrderMPIDAttributionMessageType   = 'F';
-constexpr char OrderExecutedMessageType             = 'E';
-constexpr char OrderExecutedWithPriceMessageType    = 'C';
-constexpr char OrderCancelMessageType               = 'X';
-constexpr char OrderDeleteMessageType               = 'D';
-constexpr char OrderReplaceMessageType              = 'U';
-constexpr char TradeMessageType                     = 'P';
-constexpr char CrossTradeMessageType                = 'Q';
-constexpr char BrokenTradeMessageType               = 'B';
-constexpr char NOIIMessageType                      = 'I';
-constexpr char RetailInterestMessageType            = 'N';
-constexpr char DirectListingWithCapitalRaisePriceDiscoveryMessageType = 'O';
+using MessageType_t = char;
+constexpr MessageType_t SystemEventMessageType               = 'S';
+constexpr MessageType_t StockDirectoryMessageType            = 'R';
+constexpr MessageType_t StockTradingActionMessageType        = 'H';
+constexpr MessageType_t RegSHORestrictionMessageType         = 'Y';
+constexpr MessageType_t MarketParticipantPositionMessageType = 'L';
+constexpr MessageType_t MWCBDeclineLevelMessageType          = 'V';
+constexpr MessageType_t MWCBStatusMessageType                = 'W';
+constexpr MessageType_t IPOQuotingPeriodUpdateMessageType    = 'K';
+constexpr MessageType_t LULDAuctionCollarMessageType         = 'J';
+constexpr MessageType_t OperationalHaltMessageType           = 'h';
+constexpr MessageType_t AddOrderMessageType                  = 'A';
+constexpr MessageType_t AddOrderMPIDAttributionMessageType   = 'F';
+constexpr MessageType_t OrderExecutedMessageType             = 'E';
+constexpr MessageType_t OrderExecutedWithPriceMessageType    = 'C';
+constexpr MessageType_t OrderCancelMessageType               = 'X';
+constexpr MessageType_t OrderDeleteMessageType               = 'D';
+constexpr MessageType_t OrderReplaceMessageType              = 'U';
+constexpr MessageType_t TradeMessageType                     = 'P';
+constexpr MessageType_t CrossTradeMessageType                = 'Q';
+constexpr MessageType_t BrokenTradeMessageType               = 'B';
+constexpr MessageType_t NOIIMessageType                      = 'I';
+constexpr MessageType_t RetailInterestMessageType            = 'N';
+constexpr MessageType_t DirectListingWithCapitalRaisePriceDiscoveryMessageType = 'O';
 
 template<char MessageType> constexpr char * TypeTag = MessageType + "  ";
 template <> constexpr char const * TypeTag<SystemEventMessageType>               = "SYS";
@@ -100,6 +101,7 @@ using BuySellIndicatorType      = char;
 using SharesType                = uint32_t;
 using PriceType                 = uint32_t;
 */
+
 
 struct SystemEventMessage {
     char        messageType;

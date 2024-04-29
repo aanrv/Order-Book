@@ -56,6 +56,8 @@ namespace Parser {
     NOIIMessage                         createNOIIMessage(char const *);
     RetailInterestMessage               createRetailInterestMessage(char const *);
     DirectListingWithCapitalRaisePriceDiscoveryMessage createDirectListingWithCapitalRaisePriceDiscoveryMessage(char const *);
+
+    MessageType_t getDataMessageType(char const *);
 };
 
 } // namespace ITCH
