@@ -58,6 +58,7 @@ namespace Parser {
     DirectListingWithCapitalRaisePriceDiscoveryMessage createDirectListingWithCapitalRaisePriceDiscoveryMessage(char const *);
 
     MessageType_t getDataMessageType(char const *);
+    Timestamp_t getDataTimestamp(char const *);
 };
 
 } // namespace ITCH

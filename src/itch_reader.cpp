@@ -277,3 +277,8 @@ ITCH::MessageType_t ITCH::Parser::getDataMessageType(char const * data) {
     return *data;
 }
 
+ITCH::Timestamp_t ITCH::Parser::getDataTimestamp(char const * data) {
+    data += MESSAGE_HEADER_LENGTH;
+    return be64toh(*(uint64_t *)(data + 5)) >> 16;
+}
+

@@ -14,6 +14,8 @@ namespace Side {
 }
 
 using MessageType_t = char;
+using Timestamp_t   = uint64_t;
+
 constexpr MessageType_t SystemEventMessageType               = 'S';
 constexpr MessageType_t StockDirectoryMessageType            = 'R';
 constexpr MessageType_t StockTradingActionMessageType        = 'H';
@@ -87,19 +89,6 @@ template <> constexpr uint16_t MessageLength<BrokenTradeMessageType>            
 template <> constexpr uint16_t MessageLength<NOIIMessageType>                       = 50;
 template <> constexpr uint16_t MessageLength<RetailInterestMessageType>             = 20;
 template <> constexpr uint16_t MessageLength<DirectListingWithCapitalRaisePriceDiscoveryMessageType> = 48;
-
-/*
- * Unable to use this as types may differ accross message types
- * e.g. shares are 64-bit in cross trade message
- *
-using StockLocateType           = uint16_t;
-using TimestampType             = uint64_t;
-using OrderReferenceNumberType  = uint64_t;
-using BuySellIndicatorType      = char;
-using SharesType                = uint32_t;
-using PriceType                 = uint32_t;
-*/
-
 
 struct SystemEventMessage {
     char        messageType;
