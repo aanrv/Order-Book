@@ -92,11 +92,12 @@ int main(int argc, char** argv) {
     auto t2 = high_resolution_clock::now();
     std::cout << "processed " << messageCount << " messages (" << reader.getTotalBytesRead()  << " bytes) in " << duration_cast<milliseconds>(t2 - t1).count() << " milliseconds" << std::endl;
 #endif
-
+#ifndef BENCH
     const char * header = "address,referenceNumber,stockLocate,timestamp,side,shares,price,previous,next";
     std::cout << header << std::endl;
     for (const auto& [symbol, book] : books) {
         std::cout << *book << std::endl;
     }
+#endif
 }
 
