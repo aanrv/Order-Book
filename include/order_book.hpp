@@ -63,6 +63,7 @@ public:
     uint32_t getBestAsk() const;   // lowest map
     uint32_t getLastExecutedPrice() const;  // keep track in book
     uint32_t getLastExecutedSize() const;   // keep track in book
+    size_t orderCount () const; // number of orders in book
 
     OrderBook();
 

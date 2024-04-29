@@ -234,3 +234,7 @@ uint32_t OrderBook::getBestAsk() const {
 uint32_t OrderBook::getLastExecutedPrice() const;
 uint32_t OrderBook::getLastExecutedSize() const;
 */
+
+size_t OrderBook::orderCount() const {
+    return orders.size();
+}
