@@ -1,5 +1,6 @@
 #include "itch_reader.hpp"
 #include "itch_common.hpp"
+#include <cstdlib>                  // strtoull
 #include <cstring>                  // memcpy
 #include <fcntl.h>                  // open
 #include <unistd.h>                 // read
@@ -282,3 +283,6 @@ ITCH::Timestamp_t ITCH::Parser::getDataTimestamp(char const * data) {
     return be64toh(*(uint64_t *)(data + 5)) >> 16;
 }
 
+ITCH::Timestamp_t ITCH::Parser::strToTimestamp(char const * timestampstr) {
+    return strtoull(timestampstr, nullptr, 10);
+}

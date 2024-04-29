@@ -59,6 +59,7 @@ namespace Parser {
 
     MessageType_t getDataMessageType(char const *);
     Timestamp_t getDataTimestamp(char const *);
+    Timestamp_t strToTimestamp(char const *);
 };
 
 } // namespace ITCH
