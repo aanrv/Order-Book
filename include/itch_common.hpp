@@ -7,8 +7,6 @@
 namespace ITCH {
 
 constexpr size_t maxITCHMessageSize     = 50;
-constexpr size_t messageHeaderLength    = 2;
-constexpr size_t messageTypeIndex       = 2;
 
 namespace Side {
     constexpr char BUY  = 'B';

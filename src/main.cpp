@@ -35,7 +35,6 @@ int main(int argc, char** argv) {
 
     while((messageData = reader.nextMessage())) {
         ITCH::MessageType_t messageType = ITCH::Parser::getDataMessageType(messageData);
-        messageData += ITCH::messageHeaderLength;
         switch (messageType) {
             [[likely]] case ITCH::AddOrderMessageType: {
                 ITCH::AddOrderMessage m = ITCH::Parser::createAddOrderMessage(messageData);

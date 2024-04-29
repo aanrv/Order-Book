@@ -11,6 +11,7 @@
 #include <cassert>
 #endif
 
+static constexpr size_t messageHeaderLength = 2;
 static constexpr size_t defaultBufferSize   = 2048;
 
 ITCH::Reader::Reader(char const * _filename) : Reader(_filename, defaultBufferSize) {
@@ -173,6 +174,7 @@ long long ITCH::Reader::getTotalBytesRead() const {
 }
 
 ITCH::AddOrderMessage ITCH::Parser::createAddOrderMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType                = *data;
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -183,6 +185,7 @@ ITCH::AddOrderMessage ITCH::Parser::createAddOrderMessage(char const * data) {
     return ITCH::AddOrderMessage{messageType, stockLocate, timestamp, orderReferenceNumber, side, shares, price};
 }
 ITCH::AddOrderMPIDAttributionMessage ITCH::Parser::createAddOrderMPIDAttributionMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType                = *data;
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -193,6 +196,7 @@ ITCH::AddOrderMPIDAttributionMessage ITCH::Parser::createAddOrderMPIDAttribution
     return ITCH::AddOrderMPIDAttributionMessage{messageType, stockLocate, timestamp, orderReferenceNumber, side, shares, price};
 }
 ITCH::OrderExecutedMessage ITCH::Parser::createOrderExecutedMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType                = *data;
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -201,6 +205,7 @@ ITCH::OrderExecutedMessage ITCH::Parser::createOrderExecutedMessage(char const *
     return ITCH::OrderExecutedMessage{messageType, stockLocate, timestamp, orderReferenceNumber, executedShares};
 }
 ITCH::OrderExecutedWithPriceMessage ITCH::Parser::createOrderExecutedWithPriceMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType                = *data;
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -210,6 +215,7 @@ ITCH::OrderExecutedWithPriceMessage ITCH::Parser::createOrderExecutedWithPriceMe
     return ITCH::OrderExecutedWithPriceMessage{messageType, stockLocate, timestamp, orderReferenceNumber, executedShares, executionPrice};
 }
 ITCH::OrderCancelMessage ITCH::Parser::createOrderCancelMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType                = *data;
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -218,6 +224,7 @@ ITCH::OrderCancelMessage ITCH::Parser::createOrderCancelMessage(char const * dat
     return ITCH::OrderCancelMessage{messageType, stockLocate, timestamp, orderReferenceNumber, cancelledShares};
 }
 ITCH::OrderDeleteMessage ITCH::Parser::createOrderDeleteMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType                = *data;
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -225,6 +232,7 @@ ITCH::OrderDeleteMessage ITCH::Parser::createOrderDeleteMessage(char const * dat
     return ITCH::OrderDeleteMessage{messageType, stockLocate, timestamp, orderReferenceNumber};
 }
 ITCH::OrderReplaceMessage ITCH::Parser::createOrderReplaceMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType                        = *data;
     uint16_t stockLocate                    = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp                      = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -235,6 +243,7 @@ ITCH::OrderReplaceMessage ITCH::Parser::createOrderReplaceMessage(char const * d
     return ITCH::OrderReplaceMessage{messageType, stockLocate, timestamp, originalOrderReferenceNumber, newOrderReferenceNumber, shares, price};
 }
 ITCH::TradeMessage ITCH::Parser::createTradeMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType                = *data;
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -245,6 +254,7 @@ ITCH::TradeMessage ITCH::Parser::createTradeMessage(char const * data) {
     return ITCH::TradeMessage{messageType, stockLocate, timestamp, orderReferenceNumber, side, shares, price};
 }
 ITCH::CrossTradeMessage ITCH::Parser::createCrossTradeMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType                = *data;
     uint16_t stockLocate            = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp              = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -254,6 +264,7 @@ ITCH::CrossTradeMessage ITCH::Parser::createCrossTradeMessage(char const * data)
     return ITCH::CrossTradeMessage{messageType, stockLocate, timestamp, orderReferenceNumber, shares, crossPrice};
 }
 ITCH::BrokenTradeMessage ITCH::Parser::createBrokenTradeMessage(char const * data) {
+    data += messageHeaderLength;
     char messageType        = *data;
     uint16_t stockLocate    = be16toh(*(uint16_t *)(data + 1));
     uint64_t timestamp      = be64toh(*(uint64_t *)(data + 5)) >> 16;
@@ -262,6 +273,7 @@ ITCH::BrokenTradeMessage ITCH::Parser::createBrokenTradeMessage(char const * dat
 }
 
 ITCH::MessageType_t ITCH::Parser::getDataMessageType(char const * data) {
-    return data[messageTypeIndex];
+    data += messageHeaderLength;
+    return *data;
 }
 
