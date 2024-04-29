@@ -58,11 +58,21 @@ int main(int argc, char** argv) {
             case ITCH::OrderCancelMessageType: {
                 ITCH::OrderCancelMessage m = ITCH::Parser::createOrderCancelMessage(messageData);
                 books[m.stockLocate]->handleOrderCancelMessage(m);
+                if (!books[m.stockLocate]->orderCount()) {
+                    OrderBook * const removeBook = books.find(m.stockLocate)->second;
+                    books.erase(m.stockLocate);
+                    booksmem.destroy(removeBook);
+                }
                 break;
             }
             [[likely]] case ITCH::OrderDeleteMessageType: {
                 ITCH::OrderDeleteMessage m = ITCH::Parser::createOrderDeleteMessage(messageData);
                 books[m.stockLocate]->handleOrderDeleteMessage(m);
+                if (!books[m.stockLocate]->orderCount()) {
+                    OrderBook * const removeBook = books.find(m.stockLocate)->second;
+                    books.erase(m.stockLocate);
+                    booksmem.destroy(removeBook);
+                }
                 break;
             }
             case ITCH::OrderReplaceMessageType: {
