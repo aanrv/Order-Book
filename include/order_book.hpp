@@ -124,14 +124,14 @@ inline OStream& operator<<(OStream& os, OrderBook const & b) {
     for (const auto& [_, level] : b.levelBids) {
         Order* o = level->first;
         while (o) {
-            os << *o << '\n';
+            os << *o << "\n";
             o = o->next;
         }
     }
     for (const auto& [_, level] : b.levelOffers) {
         Order* o = level->first;
         while (o) {
-            os << *o << '\n';
+            os << *o << "\n";
             o = o->next;
         }
     }
