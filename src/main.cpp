@@ -12,7 +12,14 @@
 #include <chrono>
 #endif
 
-void showBooks(google::dense_hash_map<uint16_t, OrderBook*> const);
+template <typename OStream>
+void showBooks(OStream& os, google::dense_hash_map<uint16_t, OrderBook*> const books) {
+    const char * header = "address,referenceNumber,stockLocate,timestamp,side,shares,price,previous,next";
+    os << header << std::endl;
+    for (const auto& [symbol, book] : books) {
+        os << *book << std::endl;
+    }
+}
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -60,7 +67,7 @@ int main(int argc, char** argv) {
         ITCH::Timestamp_t messageTimestamp = ITCH::Parser::getDataTimestamp(messageData);
         if (!timestamps.empty() && messageTimestamp > timestamps.back()) {
             std::cout << "timestamp " << timestamps.back() << std::endl;
-            showBooks(books);
+            showBooks(std::cout, books);
             timestamps.pop_back();
         }
 #endif
@@ -125,15 +132,8 @@ int main(int argc, char** argv) {
 #endif
 #if !BENCH
     std::cout << "timestamp " << "eod" << std::endl;
-    showBooks(books);
+    showBooks(std::cout, books);
 #endif
 }
 
-void showBooks(google::dense_hash_map<uint16_t, OrderBook*> const books) {
-    const char * header = "address,referenceNumber,stockLocate,timestamp,side,shares,price,previous,next";
-    std::cout << header << std::endl;
-    for (const auto& [symbol, book] : books) {
-        std::cout << *book << std::endl;
-    }
-}
 
