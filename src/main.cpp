@@ -13,7 +13,7 @@
 #endif
 
 template <typename OStream>
-void showBooks(OStream& os, google::dense_hash_map<uint16_t, OrderBook*> const books) {
+void showBooks(OStream& os, google::dense_hash_map<uint16_t, OrderBook*> const & books) {
     const char * header = "address,referenceNumber,stockLocate,timestamp,side,shares,price,previous,next";
     os << header << std::endl;
     for (const auto& [symbol, book] : books) {
