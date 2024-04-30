@@ -2,6 +2,7 @@
 #include "itch_reader.hpp"
 #include "order_book.hpp"
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <boost/pool/object_pool.hpp>
 #include <sparsehash/dense_hash_map>
@@ -66,10 +67,17 @@ int main(int argc, char** argv) {
     while((messageData = reader.nextMessage())) {
 #if !BENCH
         ITCH::Timestamp_t messageTimestamp = ITCH::Parser::getDataTimestamp(messageData);
-        if (!timestamps.empty() && messageTimestamp > timestamps.back()) {
-            std::cout << "timestamp " << timestamps.back() << std::endl;
-            showBooks(std::cout, books);
-            timestamps.pop_back();
+        if (!timestamps.empty()) {
+            ITCH::Timestamp_t nextCaptureTimestamp = timestamps.back();
+            if (messageTimestamp > nextCaptureTimestamp) [[unlikely]] {
+                std::string snapshotFilename;
+                snapshotFilename.append(itchFilename);
+                snapshotFilename.append(std::to_string(nextCaptureTimestamp));
+                snapshotFilename.append(".csv");
+                std::ofstream os(snapshotFilename.c_str());
+                showBooks(os, books);
+                timestamps.pop_back();
+            }
         }
 #endif
 
@@ -132,9 +140,12 @@ int main(int argc, char** argv) {
     std::cout << "processed " << messageCount << " messages (" << reader.getTotalBytesRead()  << " bytes) in " << duration_cast<milliseconds>(t2 - t1).count() << " milliseconds" << std::endl;
 #endif
 #if !BENCH
-    std::cout << "timestamp " << "eod" << std::endl;
-    showBooks(std::cout, books);
+    std::string eodFilename;
+    eodFilename.append(itchFilename);
+    eodFilename.append("eod");
+    eodFilename.append(".csv");
+    std::ofstream os(eodFilename.c_str());
+    showBooks(os, books);
 #endif
 }
-
 
