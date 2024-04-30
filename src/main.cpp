@@ -31,8 +31,9 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    char const * itchFilename = argv[1];
 #if BENCH
-    std::cout << "Processing " << argv[1] << std::endl;
+    std::cout << "Processing " << itchFilename << std::endl;
 #endif
 
 #if !BENCH
@@ -46,7 +47,7 @@ int main(int argc, char** argv) {
             [](ITCH::Timestamp_t a, ITCH::Timestamp_t b) { return b < a; });
 #endif
 
-    ITCH::Reader reader(argv[1], 16384);
+    ITCH::Reader reader(itchFilename, 16384);
     boost::object_pool<OrderBook> booksmem;
     google::dense_hash_map<uint16_t, OrderBook*> books;
     books.set_empty_key(0);
