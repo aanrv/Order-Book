@@ -80,6 +80,36 @@ void OrderBook::handleAddOrderMPIDAttributionMessage(ITCH::AddOrderMPIDAttributi
     DLOG_ASSERT(orders.count(newOrder->referenceNumber) == 1);
 }
 
+void OrderBook::handleOrderExecutedMessage(ITCH::OrderExecutedMessage const & msg) {
+    DLOG(INFO) << msg;
+    Order * o = orders.find(msg.orderReferenceNumber)->second;
+    DLOG_ASSERT(o);
+    DLOG_ASSERT(msg.executedShares <= o->shares);
+    if (o->shares == msg.executedShares) {
+        DLOG(INFO) << "EXC filled order, deleting: " << *o;
+        deleteOrder(msg.orderReferenceNumber);
+    } else {
+        o->shares -= msg.executedShares;
+        auto & levels = o->side == ITCH::Side::BUY ? levelBids : levelOffers;
+        levels[o->price]->limitVolume -= msg.executedShares;
+    }
+}
+
+void OrderBook::handleOrderExecutedWithPriceMessage(ITCH::OrderExecutedWithPriceMessage const & msg) {
+    DLOG(INFO) << msg;
+    Order * o = orders.find(msg.orderReferenceNumber)->second;
+    DLOG_ASSERT(o);
+    DLOG_ASSERT(msg.executedShares <= o->shares);
+    if (o->shares == msg.executedShares) {
+        DLOG(INFO) << "EXP filled order, deleting: " << *o;
+        deleteOrder(msg.orderReferenceNumber);
+    } else {
+        o->shares -= msg.executedShares;
+        auto & levels = o->side == ITCH::Side::BUY ? levelBids : levelOffers;
+        levels[o->price]->limitVolume -= msg.executedShares;
+    }
+}
+
 void OrderBook::handleOrderCancelMessage(ITCH::OrderCancelMessage const & msg) {
     DLOG(INFO) << msg;
     Order * o = orders.find(msg.orderReferenceNumber)->second;
@@ -126,6 +156,7 @@ void OrderBook::handleOrderReplaceMessage(ITCH::OrderReplaceMessage const & msg)
 }
 
 void OrderBook::addOrder(Order* newOrder) {
+    DLOG(INFO) << "ADD adding order " << *newOrder;
     DLOG_ASSERT(newOrder->side == ITCH::Side::BUY || newOrder->side == ITCH::Side::SELL);
     // add order to id,order map
     [[maybe_unused]] auto const orderRes = orders.insert(std::pair(newOrder->referenceNumber, newOrder));
@@ -166,6 +197,7 @@ void OrderBook::addOrder(Order* newOrder) {
 }
 
 void OrderBook::deleteOrder(uint64_t orderReferenceNumber) {
+    DLOG(INFO) << "DEL deleting order " << orderReferenceNumber;
     DLOG_ASSERT(orders.count(orderReferenceNumber));
     Order * const target = orders.find(orderReferenceNumber)->second;
     DLOG_ASSERT(target);
