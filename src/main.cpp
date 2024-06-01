@@ -149,13 +149,5 @@ int main(int argc, char** argv) {
     auto t2 = high_resolution_clock::now();
     std::cout << "processed " << messageCount << " messages (" << reader.getTotalBytesRead()  << " bytes) in " << duration_cast<milliseconds>(t2 - t1).count() << " milliseconds" << std::endl;
 #endif
-#if !BENCH
-    std::string eodFilename;
-    eodFilename.append(itchFilename);
-    eodFilename.append("eod");
-    eodFilename.append(".csv");
-    std::ofstream os(eodFilename.c_str());
-    showBooks(os, books);
-#endif
 }
 
